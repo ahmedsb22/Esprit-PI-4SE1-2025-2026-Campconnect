@@ -1,0 +1,435 @@
+/**
+ * CampConnect Custom Styles
+ * Design System based on design.txt specifications
+ * Primary Color: Forest Green #2E7D32
+ */
+
+/*--------------------------------------------------------------
+# CampConnect Color Variables (Override Template Defaults)
+--------------------------------------------------------------*/
+:root {
+  /* CampConnect Brand Colors */
+  --primary-brand: #2E7D32;        /* Forest Green - Primary brand color */
+  --secondary-brand: #388E3C;      /* Olive Green - Secondary/hover states */
+  --success-color: #C8E6C9;        /* Light Green - Success states */
+  --warning-color: #FFB300;        /* Amber - Warning/pending states */
+  --error-color: #D32F2F;          /* Crimson - Error/cancel states */
+  
+  /* Neutral Colors */
+  --neutral-bg: #F8F9F8;           /* Off-White - Main background */
+  --card-bg: #FFFFFF;              /* White - Cards, forms */
+  --text-primary: #212121;         /* Charcoal - Headings, body */
+  --text-secondary: #757575;       /* Gray - Captions, metadata */
+  --border-color: #E0E0E0;         /* Light Gray - Dividers, borders */
+  
+  /* Typography - Inter Font Family */
+  --default-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --heading-font: "Inter", sans-serif;
+  --nav-font: "Inter", sans-serif;
+  --code-font: "Roboto Mono", monospace;
+  
+  /* Override Template Colors */
+  --background-color: #F8F9F8;     /* Main background */
+  --default-color: #212121;        /* Default text */
+  --heading-color: #212121;        /* Headings */
+  --accent-color: #2E7D32;         /* Primary accent (buttons, links) */
+  --surface-color: #FFFFFF;        /* Card backgrounds */
+  --contrast-color: #FFFFFF;       /* Text on colored backgrounds */
+  
+  /* Navigation Colors */
+  --nav-color: #212121;
+  --nav-hover-color: #2E7D32;
+  --nav-mobile-background-color: #FFFFFF;
+  --nav-dropdown-background-color: #FFFFFF;
+  --nav-dropdown-color: #212121;
+  --nav-dropdown-hover-color: #2E7D32;
+  
+  /* Spacing System (8px baseline) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+/*--------------------------------------------------------------
+# Typography Updates
+--------------------------------------------------------------*/
+body {
+  font-family: var(--default-font);
+  color: var(--text-primary);
+  background-color: var(--neutral-bg);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+h1 { font-size: 32px; }
+h2 { font-size: 28px; }
+h3 { font-size: 24px; }
+
+.text-caption {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/*--------------------------------------------------------------
+# Logo & Branding
+--------------------------------------------------------------*/
+.logo .bi-tree {
+  color: var(--primary-brand) !important;
+}
+
+.sitename {
+  color: var(--primary-brand) !important;
+  font-weight: 700;
+}
+
+/*--------------------------------------------------------------
+# Buttons - CampConnect Style
+--------------------------------------------------------------*/
+.btn-getstarted,
+.cta-button,
+.btn-primary-custom,
+.cta-btn {
+  background-color: var(--primary-brand);
+  color: var(--contrast-color);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-getstarted:hover,
+.cta-button:hover,
+.btn-primary-custom:hover,
+.cta-btn:hover {
+  background-color: var(--secondary-brand);
+  color: var(--contrast-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.cta-link {
+  color: var(--primary-brand);
+  font-weight: 500;
+}
+
+.cta-link:hover {
+  color: var(--secondary-brand);
+}
+
+/*--------------------------------------------------------------
+# Status Badges
+--------------------------------------------------------------*/
+.badge-confirmed,
+.status-confirmed {
+  background-color: var(--success-color);
+  color: var(--primary-brand);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-pending,
+.status-pending {
+  background-color: #FFF8E1;
+  color: var(--warning-color);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-cancelled,
+.status-cancelled {
+  background-color: #FFEBEE;
+  color: var(--error-color);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-verified {
+  background-color: var(--success-color);
+  color: var(--primary-brand);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/*--------------------------------------------------------------
+# Hero Section - CampConnect
+--------------------------------------------------------------*/
+.hero .tag-dot {
+  background-color: var(--primary-brand);
+}
+
+.hero .tag-text {
+  color: var(--primary-brand);
+}
+
+.hero .stat-card-primary {
+  background: linear-gradient(135deg, var(--primary-brand), var(--secondary-brand));
+  color: white;
+}
+
+.hero .stat-card-primary .stat-icon-wrap {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.hero .stat-card-accent {
+  background-color: var(--success-color);
+  color: var(--primary-brand);
+}
+
+/*--------------------------------------------------------------
+# Cards & Surfaces
+--------------------------------------------------------------*/
+.card,
+.service-item,
+.feature-card,
+.project-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  transition: all 0.3s ease;
+}
+
+.card:hover,
+.service-item:hover,
+.project-card:hover {
+  box-shadow: 0 8px 24px rgba(46, 125, 50, 0.15);
+  transform: translateY(-4px);
+}
+
+/*--------------------------------------------------------------
+# Services/How It Works Section
+--------------------------------------------------------------*/
+.services .service-item .icon {
+  background-color: var(--success-color);
+  color: var(--primary-brand);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 28px;
+  margin-bottom: var(--spacing-md);
+}
+
+.services .service-item h3 {
+  color: var(--primary-brand);
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+}
+
+/*--------------------------------------------------------------
+# Feature Cards in About Section
+--------------------------------------------------------------*/
+.about .feature-card i {
+  color: var(--primary-brand);
+}
+
+.about .read-more {
+  color: var(--primary-brand);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.about .read-more:hover {
+  color: var(--secondary-brand);
+  gap: 12px;
+}
+
+/*--------------------------------------------------------------
+# Call to Action - Become Provider
+--------------------------------------------------------------*/
+.call-to-action h3 {
+  color: var(--contrast-color);
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+}
+
+.call-to-action .cta-btn {
+  background-color: var(--primary-brand);
+  border: 2px solid var(--contrast-color);
+}
+
+.call-to-action .cta-btn:hover {
+  background-color: var(--contrast-color);
+  color: var(--primary-brand);
+  border-color: var(--contrast-color);
+}
+
+/*--------------------------------------------------------------
+# Links & Interactive Elements
+--------------------------------------------------------------*/
+a {
+  color: var(--primary-brand);
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--secondary-brand);
+}
+
+/*--------------------------------------------------------------
+# Forms - CampConnect Style
+--------------------------------------------------------------*/
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="number"],
+textarea,
+select {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--default-font);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-brand);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+/*--------------------------------------------------------------
+# Footer
+--------------------------------------------------------------*/
+.footer {
+  background-color: var(--text-primary);
+  color: var(--contrast-color);
+}
+
+.footer a {
+  color: var(--success-color);
+}
+
+.footer a:hover {
+  color: var(--primary-brand);
+}
+
+.footer .sitename {
+  color: var(--primary-brand) !important;
+}
+
+/*--------------------------------------------------------------
+# Accessibility - WCAG 2.1 AA Compliant
+--------------------------------------------------------------*/
+*:focus {
+  outline: 2px solid var(--primary-brand);
+  outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-brand);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.skip-to-main:focus {
+  top: 0;
+}
+
+/*--------------------------------------------------------------
+# Responsive Typography
+--------------------------------------------------------------*/
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 18px; }
+}
+
+/*--------------------------------------------------------------
+# Utility Classes - CampConnect
+--------------------------------------------------------------*/
+.bg-primary { background-color: var(--primary-brand) !important; }
+.bg-secondary { background-color: var(--secondary-brand) !important; }
+.bg-success { background-color: var(--success-color) !important; }
+.bg-warning { background-color: var(--warning-color) !important; }
+.bg-error { background-color: var(--error-color) !important; }
+
+.text-primary { color: var(--primary-brand) !important; }
+.text-secondary-color { color: var(--text-secondary) !important; }
+.text-success { color: var(--primary-brand) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-error { color: var(--error-color) !important; }
+
+.border-primary { border-color: var(--primary-brand) !important; }
+
+/* Spacing utilities */
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+
+.m-xs { margin: var(--spacing-xs); }
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+
+/*--------------------------------------------------------------
+# Currency Display - TND
+--------------------------------------------------------------*/
+.price {
+  font-weight: 700;
+  color: var(--primary-brand);
+  font-size: 18px;
+}
+
+.price::after {
+  content: " TND";
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/*--------------------------------------------------------------
+# Loading & Preloader
+--------------------------------------------------------------*/
+#preloader {
+  background-color: var(--neutral-bg);
+}
+
+.spinner-border {
+  color: var(--primary-brand);
+}

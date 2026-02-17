@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Camping Equipment - CampConnect</title>
+  <meta name="description" content="Rent quality camping equipment for your outdoor adventure. Tents, sleeping bags, cooking gear and more.">
+  <meta name="keywords" content="camping equipment, rental, tents, sleeping bags, outdoor gear, Tunisia">
+
+  <!-- Favicons -->
+  <link href="assets/img/placeholder.svg" rel="icon">
+  <link href="assets/img/placeholder.svg" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+  
+  <!-- CampConnect Custom CSS -->
+  <link href="assets/css/campconnect-custom.css" rel="stylesheet">
+
+  <style>
+    .equipment-card {
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #E0E0E0;
+      height: 100%;
+    }
+
+    .equipment-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 24px rgba(46, 125, 50, 0.15);
+    }
+
+    .equipment-card img {
+      height: 200px;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .equipment-card .card-body {
+      padding: 1.5rem;
+    }
+
+    .equipment-category {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: #C8E6C9;
+      color: #1B5E20;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    .equipment-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #212121;
+    }
+
+    .equipment-description {
+      color: #616161;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .equipment-specs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: #616161;
+    }
+
+    .equipment-spec i {
+      color: #2E7D32;
+      margin-right: 0.25rem;
+    }
+
+    .equipment-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid #EEEEEE;
+    }
+
+    .equipment-price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2E7D32;
+    }
+
+    .equipment-price-unit {
+      font-size: 0.8rem;
+      color: #757575;
+      font-weight: 400;
+    }
+
+    .availability-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .availability-badge.available {
+      background: #C8E6C9;
+      color: #1B5E20;
+    }
+
+    .availability-badge.limited {
+      background: #FFE082;
+      color: #F57C00;
+    }
+
+    .btn-rent {
+      background: #2E7D32;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+
+    .btn-rent:hover {
+      background: #1B5E20;
+      color: white;
+    }
+
+    .page-header {
+      padding: 6rem 0 3rem;
+      background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+      color: white;
+      margin-bottom: 0;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .filters-section {
+      background: #F5F5F5;
+      padding: 2rem 0;
+      margin-bottom: 3rem;
+    }
+
+    .filter-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      color: #616161;
+    }
+
+    .category-tab:hover,
+    .category-tab.active {
+      border-color: #2E7D32;
+      background: #E8F5E9;
+      color: #1B5E20;
+    }
+  </style>
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+
+      <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
+        <i class="bi bi-tree" style="font-size: 2rem; color: #2E7D32; margin-right: 0.5rem;"></i>
+        <h1 class="sitename">CampConnect</h1><span>.</span>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="camping-sites.html">Camping Sites</a></li>
+          <li><a href="equipment.html" class="active">Equipment</a></li>
+          <li><a href="index.html#how-it-works">How It Works</a></li>
+          <li class="dropdown"><a href="#"><span>Account</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="login.html">Login</a></li>
+              <li><a href="register.html">Register as Camper</a></li>
+              <li><a href="register-provider.html">Become a Provider</a></li>
+              <li><a href="dashboard.html">My Dashboard</a></li>
+            </ul>
+          </li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted" href="camping-sites.html">Browse Sites</a>
+
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Page Header -->
+    <section class="page-header">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8">
+            <h1>Camping Equipment Rental</h1>
+            <p>Quality gear for your outdoor adventure. Rent what you need, when you need it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category Tabs -->
+    <section class="py-4" style="background: #FAFAFA;">
+      <div class="container">
+        <div class="category-tabs">
+          <button class="category-tab active" data-category="all">
+            <i class="bi bi-grid-3x3-gap"></i> All Equipment
+          </button>
+          <button class="category-tab" data-category="tents">
+            <i class="bi bi-house-door"></i> Tents & Shelters
+          </button>
+          <button class="category-tab" data-category="sleeping">
+            <i class="bi bi-moon"></i> Sleeping Gear
+          </button>
+          <button class="category-tab" data-category="cooking">
+            <i class="bi bi-fire"></i> Cooking & Food
+          </button>
+          <button class="category-tab" data-category="lighting">
+            <i class="bi bi-lightbulb"></i> Lighting
+          </button>
+          <button class="category-tab" data-category="safety">
+            <i class="bi bi-shield-check"></i> Safety & Tools
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+      <div class="container">
+        <div class="filter-card">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Price Range (TND/day)</label>
+              <select class="form-select">
+                <option selected>Any Price</option>
+                <option>0 - 10 TND</option>
+                <option>10 - 25 TND</option>
+                <option>25 - 50 TND</option>
+                <option>50+ TND</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Availability</label>
+              <select class="form-select">
+                <option selected>All Items</option>
+                <option>Available Now</option>
+                <option>Limited Stock</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Sort By</label>
+              <select class="form-select">
+                <option selected>Most Popular</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+                <option>Newest First</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Equipment Grid -->
+    <section class="equipment-section py-5">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-lg-6">
+            <h2>Available Equipment</h2>
+            <p class="text-muted">Showing 200+ items</p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          
+          <!-- Equipment Card 1 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="Family Tent">
+              <div class="card-body">
+                <span class="equipment-category">Tents & Shelters</span>
+                <h3 class="equipment-title">Family Tent (6 Person)</h3>
+                <p class="equipment-description">
+                  Spacious waterproof tent with easy setup. Perfect for family camping.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-people"></i> 6 persons</span>
+                  <span class="equipment-spec"><i class="bi bi-shield-check"></i> Waterproof</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">35 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=1" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 2 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="Sleeping Bag">
+              <div class="card-body">
+                <span class="equipment-category">Sleeping Gear</span>
+                <h3 class="equipment-title">Premium Sleeping Bag</h3>
+                <p class="equipment-description">
+                  Warm and comfortable sleeping bag rated for 0°C to 15°C.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-thermometer-half"></i> 0-15°C</span>
+                  <span class="equipment-spec"><i class="bi bi-box"></i> Compact</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">12 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=2" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 3 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="Camping Stove">
+              <div class="card-body">
+                <span class="equipment-category">Cooking & Food</span>
+                <h3 class="equipment-title">Portable Camping Stove</h3>
+                <p class="equipment-description">
+                  Compact gas stove with wind protection. Includes cookware set.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-fire"></i> Gas powered</span>
+                  <span class="equipment-spec"><i class="bi bi-cup-hot"></i> Cookware</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">18 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge limited">Limited</span>
+                  </div>
+                  <a href="equipment-details.html?id=3" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 4 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="LED Lantern">
+              <div class="card-body">
+                <span class="equipment-category">Lighting</span>
+                <h3 class="equipment-title">LED Camping Lantern</h3>
+                <p class="equipment-description">
+                  Rechargeable LED lantern with 48-hour battery life. Multiple brightness levels.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-battery-charging"></i> 48h battery</span>
+                  <span class="equipment-spec"><i class="bi bi-brightness-high"></i> Adjustable</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">8 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=4" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 5 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="Backpack">
+              <div class="card-body">
+                <span class="equipment-category">Safety & Tools</span>
+                <h3 class="equipment-title">Hiking Backpack 50L</h3>
+                <p class="equipment-description">
+                  Ergonomic backpack with rain cover and multiple compartments.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-bag"></i> 50L capacity</span>
+                  <span class="equipment-spec"><i class="bi bi-umbrella"></i> Rain cover</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">15 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=5" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 6 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="Cooler Box">
+              <div class="card-body">
+                <span class="equipment-category">Cooking & Food</span>
+                <h3 class="equipment-title">Portable Cooler 40L</h3>
+                <p class="equipment-description">
+                  Insulated cooler box keeps food and drinks cold for up to 3 days.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-snow"></i> 40L capacity</span>
+                  <span class="equipment-spec"><i class="bi bi-clock"></i> 3 days cold</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">20 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=6" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 7 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="Camping Chair">
+              <div class="card-body">
+                <span class="equipment-category">Tents & Shelters</span>
+                <h3 class="equipment-title">Folding Camp Chair</h3>
+                <p class="equipment-description">
+                  Lightweight and comfortable folding chair with cup holder.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-arrows-collapse"></i> Foldable</span>
+                  <span class="equipment-spec"><i class="bi bi-cup"></i> Cup holder</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">5 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=7" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipment Card 8 -->
+          <div class="col-lg-3 col-md-6">
+            <div class="card equipment-card">
+              <img src="assets/img/placeholder.svg" alt="First Aid Kit">
+              <div class="card-body">
+                <span class="equipment-category">Safety & Tools</span>
+                <h3 class="equipment-title">Complete First Aid Kit</h3>
+                <p class="equipment-description">
+                  Comprehensive first aid kit with all essentials for outdoor safety.
+                </p>
+                <div class="equipment-specs">
+                  <span class="equipment-spec"><i class="bi bi-plus-circle"></i> Complete</span>
+                  <span class="equipment-spec"><i class="bi bi-shield-fill-check"></i> Certified</span>
+                </div>
+                <div class="equipment-footer">
+                  <div>
+                    <div class="equipment-price">10 TND <span class="equipment-price-unit">/day</span></div>
+                    <span class="availability-badge available">Available</span>
+                  </div>
+                  <a href="equipment-details.html?id=8" class="btn btn-rent btn-sm">Rent</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="row mt-5">
+          <div class="col-12">
+            <nav>
+              <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5" style="background: #E8F5E9;">
+      <div class="container text-center">
+        <h2 class="mb-3">Need Help Choosing Equipment?</h2>
+        <p class="mb-4">Our team can help you select the perfect gear for your camping adventure.</p>
+        <a href="index.html#contact" class="btn btn-rent btn-lg">Contact Us</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="footer" class="footer dark-background">
+
+    <div class="footer-top">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-4 col-md-6 footer-about">
+            <a href="index.html" class="logo d-flex align-items-center">
+              <span class="sitename">CampConnect</span>
+            </a>
+            <div class="footer-contact pt-3">
+              <p>Your gateway to amazing camping experiences across Tunisia.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-3 footer-links">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="index.html#about">About</a></li>
+              <li><a href="camping-sites.html">Camping Sites</a></li>
+              <li><a href="equipment.html">Equipment</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-3 footer-links">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="index.html#how-it-works">How It Works</a></li>
+              <li><a href="index.html#contact">Contact</a></li>
+              <li><a href="terms.html">Terms of Service</a></li>
+              <li><a href="privacy.html">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 col-md-12 footer-newsletter">
+            <h4>Newsletter</h4>
+            <p>Subscribe for camping tips and exclusive offers!</p>
+            <form action="" method="post" class="php-email-form">
+              <div class="newsletter-form">
+                <input type="email" name="email" placeholder="Your email">
+                <input type="submit" value="Subscribe">
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="social-links d-flex justify-content-center mb-3">
+            <a href=""><i class="bi bi-twitter-x"></i></a>
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-linkedin"></i></a>
+          </div>
+          <div class="legal-row">
+            <p>© <span>Copyright</span> <strong class="sitename">CampConnect</strong> <span id="year">2025</span>. All Rights Reserved.</p>
+          </div>
+          <div class="legal-links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+  <script>
+    // Set current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Category tabs functionality
+    document.querySelectorAll('.category-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        // In a real application, this would filter the equipment cards
+      });
+    });
+  </script>
+
+</body>
+
+</html>
+

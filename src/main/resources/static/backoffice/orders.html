@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Order Management - Campconnect1</title>
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .badge-completed { background-color: #1cc88a; }
+        .badge-processing { background-color: #36b9cc; }
+        .badge-pending { background-color: #f6c23e; }
+        .badge-cancelled { background-color: #e74a3b; }
+        .action-btn { margin: 0 2px; padding: 5px 10px; font-size: 0.8rem; }
+    </style>
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard.html">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-campground"></i></div>
+                <div class="sidebar-brand-text mx-3">CampConnect1</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Management</div>
+            <li class="nav-item"><a class="nav-link" href="sites.html"><i class="fas fa-fw fa-map-marked-alt"></i><span>Site Validations</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="contracts.html"><i class="fas fa-fw fa-file-contract"></i><span>Contracts</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="billing.html"><i class="fas fa-fw fa-file-invoice-dollar"></i><span>Billing & Invoices</span></a></li>
+            <li class="nav-item active"><a class="nav-link" href="orders.html"><i class="fas fa-fw fa-shopping-cart"></i><span>Order Management</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="users.html"><i class="fas fa-fw fa-users"></i><span>User Management</span></a></li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">System</div>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-fw fa-cog"></i><span>Settings</span></a></li>
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="text-center d-none d-md-inline"><button class="rounded-circle border-0" id="sidebarToggle"></button></div>
+        </ul>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Order Management</h1>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Orders</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Processing</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">25</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-spinner fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">156</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Cancelled</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-ban fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Orders List</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Site</th>
+                                            <th>Check-in</th>
+                                            <th>Check-out</th>
+                                            <th>Amount (TND)</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>ORD-2024-001</td>
+                                            <td>Mohamed Ali</td>
+                                            <td>Mountain View</td>
+                                            <td>2024-03-01</td>
+                                            <td>2024-03-05</td>
+                                            <td>450</td>
+                                            <td><span class="badge badge-pending">Pending</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewOrder(1)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-success btn-sm action-btn" onclick="confirmOrder(1)"><i class="fas fa-check"></i> Confirm</button>
+                                                <button class="btn btn-danger btn-sm action-btn" onclick="cancelOrder(1)"><i class="fas fa-times"></i> Cancel</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-2024-002</td>
+                                            <td>Sarah Ben Salah</td>
+                                            <td>Coastal Paradise</td>
+                                            <td>2024-03-10</td>
+                                            <td>2024-03-15</td>
+                                            <td>680</td>
+                                            <td><span class="badge badge-processing">Processing</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewOrder(2)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-success btn-sm action-btn" onclick="completeOrder(2)"><i class="fas fa-check-double"></i> Complete</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-2024-003</td>
+                                            <td>Ahmed Trabelsi</td>
+                                            <td>Desert Oasis</td>
+                                            <td>2024-02-20</td>
+                                            <td>2024-02-25</td>
+                                            <td>550</td>
+                                            <td><span class="badge badge-completed">Completed</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewOrder(3)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-secondary btn-sm action-btn" onclick="printReceipt(3)"><i class="fas fa-print"></i> Receipt</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-2024-004</td>
+                                            <td>Leila Mansour</td>
+                                            <td>Forest Retreat</td>
+                                            <td>2024-03-05</td>
+                                            <td>2024-03-08</td>
+                                            <td>390</td>
+                                            <td><span class="badge badge-processing">Processing</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewOrder(4)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-success btn-sm action-btn" onclick="completeOrder(4)"><i class="fas fa-check-double"></i> Complete</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-2024-005</td>
+                                            <td>Karim Jebali</td>
+                                            <td>Lakeside Camping</td>
+                                            <td>2024-03-12</td>
+                                            <td>2024-03-18</td>
+                                            <td>820</td>
+                                            <td><span class="badge badge-pending">Pending</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewOrder(5)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-success btn-sm action-btn" onclick="confirmOrder(5)"><i class="fas fa-check"></i> Confirm</button>
+                                                <button class="btn btn-danger btn-sm action-btn" onclick="cancelOrder(5)"><i class="fas fa-times"></i> Cancel</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>ORD-2024-006</td>
+                                            <td>Fatma Souissi</td>
+                                            <td>Mountain View</td>
+                                            <td>2024-02-15</td>
+                                            <td>2024-02-18</td>
+                                            <td>420</td>
+                                            <td><span class="badge badge-cancelled">Cancelled</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewOrder(6)"><i class="fas fa-eye"></i> View</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto"><span>Copyright &copy; Campconnect1 2024</span></div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() { $('#dataTable').DataTable({ "order": [[ 0, "desc" ]] }); });
+        function viewOrder(id) { alert('Viewing order details for #' + id); }
+        function confirmOrder(id) { if(confirm('Confirm this order?')) { alert('Order #' + id + ' confirmed!'); } }
+        function cancelOrder(id) { if(confirm('Cancel this order?')) { alert('Order #' + id + ' cancelled!'); } }
+        function completeOrder(id) { if(confirm('Mark this order as completed?')) { alert('Order #' + id + ' completed!'); } }
+        function printReceipt(id) { alert('Printing receipt for order #' + id); }
+    </script>
+</body>
+</html>

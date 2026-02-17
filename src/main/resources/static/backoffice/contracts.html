@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Contracts - Campconnect1</title>
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .badge-active { background-color: #1cc88a; }
+        .badge-expired { background-color: #e74a3b; }
+        .badge-pending { background-color: #f6c23e; }
+        .action-btn { margin: 0 2px; padding: 5px 10px; font-size: 0.8rem; }
+    </style>
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard.html">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-campground"></i></div>
+                <div class="sidebar-brand-text mx-3">CampConnect1</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Management</div>
+            <li class="nav-item"><a class="nav-link" href="sites.html"><i class="fas fa-fw fa-map-marked-alt"></i><span>Site Validations</span></a></li>
+            <li class="nav-item active"><a class="nav-link" href="contracts.html"><i class="fas fa-fw fa-file-contract"></i><span>Contracts</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="billing.html"><i class="fas fa-fw fa-file-invoice-dollar"></i><span>Billing & Invoices</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-fw fa-shopping-cart"></i><span>Order Management</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="users.html"><i class="fas fa-fw fa-users"></i><span>User Management</span></a></li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">System</div>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-fw fa-cog"></i><span>Settings</span></a></li>
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="text-center d-none d-md-inline"><button class="rounded-circle border-0" id="sidebarToggle"></button></div>
+        </ul>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Contracts Management</h1>
+                        <button class="btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#createContractModal">
+                            <i class="fas fa-plus fa-sm text-white-50"></i> Create Contract
+                        </button>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Contracts</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">34</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-file-signature fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Signature</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">7</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-hourglass-half fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Expired Contracts</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Contracts List</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Contract ID</th>
+                                            <th>Site Name</th>
+                                            <th>Owner</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>CNT-2024-001</td>
+                                            <td>Mountain View Campsite</td>
+                                            <td>Mohamed Ali</td>
+                                            <td>2024-01-01</td>
+                                            <td>2024-12-31</td>
+                                            <td><span class="badge badge-active">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewContract(1)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-success btn-sm action-btn" onclick="downloadContract(1)"><i class="fas fa-download"></i> Download</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>CNT-2024-002</td>
+                                            <td>Coastal Paradise</td>
+                                            <td>Sarah Ben Salah</td>
+                                            <td>2024-02-01</td>
+                                            <td>2025-01-31</td>
+                                            <td><span class="badge badge-pending">Pending</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewContract(2)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-success btn-sm action-btn" onclick="downloadContract(2)"><i class="fas fa-download"></i> Download</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>CNT-2023-045</td>
+                                            <td>Desert Oasis</td>
+                                            <td>Ahmed Trabelsi</td>
+                                            <td>2023-03-01</td>
+                                            <td>2024-02-28</td>
+                                            <td><span class="badge badge-expired">Expired</span></td>
+                                            <td>
+                                                <button class="btn btn-info btn-sm action-btn" onclick="viewContract(3)"><i class="fas fa-eye"></i> View</button>
+                                                <button class="btn btn-warning btn-sm action-btn" onclick="renewContract(3)"><i class="fas fa-redo"></i> Renew</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto"><span>Copyright &copy; Campconnect1 2024</span></div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <div class="modal fade" id="createContractModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Contract</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Site Name</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Owner Name</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="date" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" type="button" onclick="createContract()">Create Contract</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() { $('#dataTable').DataTable(); });
+        function viewContract(id) { alert('Viewing contract #' + id); }
+        function downloadContract(id) { alert('Downloading contract #' + id); }
+        function renewContract(id) { alert('Renewing contract #' + id); }
+        function createContract() { alert('Contract created!'); $('#createContractModal').modal('hide'); }
+    </script>
+</body>
+</html>
