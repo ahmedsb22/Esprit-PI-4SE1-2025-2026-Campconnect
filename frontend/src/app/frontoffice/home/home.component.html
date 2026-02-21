@@ -1,0 +1,386 @@
+<header id="header" class="header d-flex align-items-center sticky-top">
+  <div class="container position-relative d-flex align-items-center justify-content-between">
+    <a routerLink="/frontoffice/home" class="logo d-flex align-items-center me-auto me-xl-0">
+      <i class="bi bi-tree" style="font-size: 2rem; color: #2E7D32; margin-right: 0.5rem;"></i>
+      <h1 class="sitename">CampConnect</h1><span>.</span>
+    </a>
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a routerLink="/frontoffice/home" fragment="hero" class="active" (click)="scrollTo('hero')">Home</a></li>
+        <li><a routerLink="/frontoffice/home" fragment="about" (click)="scrollTo('about')">About</a></li>
+        <li><a routerLink="/frontoffice/camping-sites">Camping Sites</a></li>
+        <li><a routerLink="/frontoffice/equipment">Equipment</a></li>
+        <li><a routerLink="/frontoffice/home" fragment="how-it-works" (click)="scrollTo('how-it-works')">How It Works</a></li>
+        <li class="dropdown">
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><span>Account</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a routerLink="/frontoffice/login">Login</a></li>
+            <li><a routerLink="/frontoffice/register">Register as Camper</a></li>
+            <li><a routerLink="/frontoffice/register">Become a Provider</a></li>
+            <li><a routerLink="/backoffice/dashboard">My Dashboard</a></li>
+          </ul>
+        </li>
+        <li><a routerLink="/frontoffice/home" fragment="contact" (click)="scrollTo('contact')">Contact</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+    <a class="btn-getstarted" routerLink="/frontoffice/camping-sites">Find Camping Sites</a>
+  </div>
+</header>
+
+<main class="main">
+  <!-- Hero Section -->
+  <section id="hero" class="hero section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row align-items-center gy-5">
+        <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
+          <div class="hero-content">
+            <div class="hero-tag" data-aos="fade-up" data-aos-delay="250">
+              <span class="tag-dot"></span>
+              <span class="tag-text">🏕️ Your Camping Adventure Awaits</span>
+            </div>
+            <h1 class="hero-headline" data-aos="fade-up" data-aos-delay="300">Discover Amazing Camping Sites Across Tunisia</h1>
+            <p class="hero-text" data-aos="fade-up" data-aos-delay="350">
+              Find and book the perfect camping spot, rent quality equipment, and experience the beauty of Tunisia's nature. From beaches to deserts, mountains to forests - your next adventure starts here.
+            </p>
+            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+              <a routerLink="/frontoffice/camping-sites" class="cta-button">
+                <span>Explore Camping Sites</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+              <a routerLink="/frontoffice/home" fragment="how-it-works" class="cta-link" (click)="scrollTo('how-it-works')">
+                <i class="bi bi-info-circle"></i>
+                <span>How It Works</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
+          <div class="stats-grid">
+            <div class="stat-card stat-card-primary" data-aos="zoom-in" data-aos-delay="350">
+              <div class="stat-icon-wrap">
+                <i class="bi bi-geo-alt-fill"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{ stats.sites }}+</span>
+                <span class="stat-title">Camping Sites</span>
+              </div>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
+              <div class="stat-icon-wrap">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{ stats.campers | number }}+</span>
+                <span class="stat-title">Happy Campers</span>
+              </div>
+            </div>
+            <div class="stat-card" data-aos="zoom-in" data-aos-delay="450">
+              <div class="stat-icon-wrap">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{ stats.rating }}/5</span>
+                <span class="stat-title">Average Rating</span>
+              </div>
+            </div>
+            <div class="stat-card stat-card-accent" data-aos="zoom-in" data-aos-delay="500">
+              <div class="stat-icon-wrap">
+                <i class="bi bi-backpack-fill"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{ stats.equipment }}+</span>
+                <span class="stat-title">Equipment Items</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row gy-5 align-items-center">
+        <div class="col-xl-6" data-aos="fade-right" data-aos-delay="200">
+          <div class="about-images-wrapper">
+            <div class="image-main">
+              <img src="assets/img/placeholder.svg" alt="Camping en Tunisie" class="img-fluid">
+            </div>
+            <div class="image-offset">
+              <img src="assets/img/placeholder.svg" alt="Site de camping naturel" class="img-fluid">
+            </div>
+            <div class="experience-badge">
+              <span class="years purecounter" data-purecounter-start="0" data-purecounter-end="12" data-purecounter-duration="1">12</span>
+              <span class="text">Years of<br>Excellence</span>
+            </div>
+            <div class="shape-pattern"></div>
+          </div>
+        </div>
+        <div class="col-xl-6" data-aos="fade-left" data-aos-delay="300">
+          <div class="about-content">
+            <div class="section-subtitle">About CampConnect</div>
+            <h2>Connecting You With Tunisia's Best Camping Experiences</h2>
+            <p class="lead-text">
+              CampConnect is Tunisia's leading platform for discovering, booking, and managing camping adventures. We connect outdoor enthusiasts with verified camping site owners and quality equipment providers.
+            </p>
+            <p class="mb-4 description">
+              Whether you're a seasoned camper or planning your first outdoor adventure, CampConnect makes it easy to find the perfect spot. From pristine beaches to stunning deserts, majestic mountains to peaceful forests - explore Tunisia's natural beauty with confidence.
+            </p>
+            <div class="features-grid">
+              <div class="feature-card">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Verified Sites</span>
+              </div>
+              <div class="feature-card">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Secure Booking</span>
+              </div>
+              <div class="feature-card">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Quality Equipment</span>
+              </div>
+              <div class="feature-card">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>24/7 Support</span>
+              </div>
+            </div>
+            <a routerLink="/frontoffice/camping-sites" class="read-more">
+              <span>Browse Camping Sites</span>
+              <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="services section">
+    <div class="container section-title" data-aos="fade-up">
+      <div class="section-subtitle">How It Works</div>
+      <h2>Your Journey to the Perfect Camping Experience</h2>
+      <p>Getting started with CampConnect is easy. Follow these simple steps to book your next adventure.</p>
+    </div>
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="service-item position-relative">
+            <div class="icon"><i class="bi bi-search"></i></div>
+            <h3>1. Search & Discover</h3>
+            <p>Browse through our curated selection of camping sites across Tunisia. Filter by location, amenities, price, and availability to find your perfect spot.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="service-item position-relative">
+            <div class="icon"><i class="bi bi-calendar-check"></i></div>
+            <h3>2. Book & Pay Securely</h3>
+            <p>Select your dates, review pricing, and complete your booking with our secure payment system. Receive instant confirmation and digital contract.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+          <div class="service-item position-relative">
+            <div class="icon"><i class="bi bi-backpack"></i></div>
+            <h3>3. Rent Equipment (Optional)</h3>
+            <p>Need camping gear? <a routerLink="/frontoffice/equipment" style="color: #2E7D32; font-weight: 600; text-decoration: underline;">Browse our equipment catalog</a> and add tents, sleeping bags, cooking supplies, and more to your order.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="service-item position-relative">
+            <div class="icon"><i class="bi bi-file-text"></i></div>
+            <h3>4. Sign Your Contract</h3>
+            <p>Review and digitally sign your camping contract. Everything is transparent and documented for your peace of mind.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="service-item position-relative">
+            <div class="icon"><i class="bi bi-tree-fill"></i></div>
+            <h3>5. Enjoy Nature</h3>
+            <p>Pack your bags and head to your camping site. Check-in is easy, and our support team is available 24/7 if you need anything.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+          <div class="service-item position-relative">
+            <div class="icon"><i class="bi bi-star"></i></div>
+            <h3>6. Share Your Experience</h3>
+            <p>After your adventure, leave a review to help other campers. Your feedback helps maintain quality across our platform.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Become a Provider Section -->
+  <section id="become-provider" class="call-to-action section dark-background">
+    <img src="assets/img/placeholder.svg" alt="Devenir propriétaire" data-aos="zoom-in" data-aos-delay="100">
+    <div class="container">
+      <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="200">
+        <div class="col-xl-10">
+          <div class="text-center">
+            <h3>Own a Camping Site?</h3>
+            <p>Join CampConnect as a provider and reach thousands of outdoor enthusiasts across Tunisia. List your site, manage bookings, and grow your business with our easy-to-use platform.</p>
+            <a class="cta-btn" routerLink="/frontoffice/register">Become a Provider</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact section">
+    <div class="container section-title" data-aos="fade-up">
+      <h2>Contact</h2>
+      <p>Get in touch with us for any questions or support</p>
+    </div>
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row gy-5 align-items-stretch">
+        <div class="col-lg-5" data-aos="fade-right" data-aos-delay="200">
+          <div class="info-panel">
+            <div class="panel-header">
+              <span class="section-badge">
+                <i class="bi bi-chat-dots-fill"></i>
+                Get In Touch
+              </span>
+              <h3>Let's Bring Your Vision to Life</h3>
+              <p>Contact us for any questions about camping sites, equipment rental, or becoming a provider.</p>
+            </div>
+            <div class="contact-methods">
+              <div class="method-item">
+                <div class="method-icon">
+                  <i class="bi bi-envelope-paper-fill"></i>
+                </div>
+                <div class="method-details">
+                  <span class="method-label">Email Us</span>
+                  <a href="mailto:support&#64;campconnect.tn">support&#64;campconnect.tn</a>
+                </div>
+              </div>
+              <div class="method-item">
+                <div class="method-icon">
+                  <i class="bi bi-headset"></i>
+                </div>
+                <div class="method-details">
+                  <span class="method-label">Call Us</span>
+                  <a href="tel:+21612345678">+216 12 345 678</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-7" data-aos="fade-left" data-aos-delay="300">
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="header-icon">
+                <i class="bi bi-send-fill"></i>
+              </div>
+              <div class="header-text">
+                <h4>Send Us a Message</h4>
+                <p>Fill out the form and our team will respond within 24 hours.</p>
+              </div>
+            </div>
+            <form class="php-email-form" (submit)="onContactSubmit($event)">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div class="input-group-custom">
+                    <label>Your Name</label>
+                    <div class="input-wrapper">
+                      <i class="bi bi-person"></i>
+                      <input type="text" name="name" placeholder="John Doe" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group-custom">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                      <i class="bi bi-envelope"></i>
+                      <input type="email" name="email" placeholder="john@example.com" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="input-group-custom">
+                    <label>Subject</label>
+                    <div class="input-wrapper">
+                      <i class="bi bi-chat-square-text"></i>
+                      <input type="text" name="subject" placeholder="How can we help?" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="input-group-custom">
+                    <label>Your Message</label>
+                    <div class="input-wrapper textarea-wrapper">
+                      <i class="bi bi-pencil-square"></i>
+                      <textarea name="message" rows="5" placeholder="Tell us about your project..." required></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                  <span>Send Message</span>
+                  <i class="bi bi-arrow-right-circle-fill"></i>
+                </button>
+              </div>
+              <p *ngIf="contactSubmitted" class="text-success mt-3 mb-0">Message sent. We will contact you soon.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="footer" class="footer light-background">
+  <div class="container footer-top">
+    <div class="row gy-4">
+      <div class="col-lg-3 col-md-6 footer-info">
+        <a routerLink="/frontoffice/home" class="logo d-flex align-items-center mb-4">
+          <span class="sitename">CampConnect</span>
+        </a>
+        <p>Your trusted platform for camping adventures in Tunisia. Discover amazing sites, rent quality equipment, and create unforgettable memories.</p>
+        <div class="social-links d-flex mt-4">
+          <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-6 footer-links">
+        <h4>Explore</h4>
+        <ul>
+          <li><a routerLink="/frontoffice/camping-sites">Camping Sites</a></li>
+          <li><a routerLink="/frontoffice/equipment">Equipment</a></li>
+          <li><a routerLink="/frontoffice/home" fragment="how-it-works">How It Works</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-6 footer-links">
+        <h4>Account</h4>
+        <ul>
+          <li><a routerLink="/frontoffice/login">Login</a></li>
+          <li><a routerLink="/frontoffice/register">Register</a></li>
+          <li><a routerLink="/backoffice/dashboard">Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-6 footer-links">
+        <h4>Company</h4>
+        <ul>
+          <li><a routerLink="/frontoffice/home" fragment="about">About Us</a></li>
+          <li><a routerLink="/frontoffice/home" fragment="contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <div class="row gy-3">
+      <div class="col-md-6 order-2 order-md-1">
+        <div class="copyright">
+          <p>© <span>Copyright</span> <strong class="sitename">CampConnect</strong> <span id="year">2025</span>. All Rights Reserved.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<a (click)="scrollToTop()" style="cursor: pointer;" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+<!-- Preloader disabled in SPA to avoid reload loops -->

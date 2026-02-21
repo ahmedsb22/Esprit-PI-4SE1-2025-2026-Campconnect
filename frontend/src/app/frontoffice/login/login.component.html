@@ -1,0 +1,28 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">Login to CampConnect</h2>
+          <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" [(ngModel)]="email" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password" required>
+            </div>
+            <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+              {{ loading ? 'Logging in...' : 'Login' }}
+            </button>
+            <div class="text-center mt-3">
+              <p>Don't have an account? <a routerLink="/frontoffice/register">Register here</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

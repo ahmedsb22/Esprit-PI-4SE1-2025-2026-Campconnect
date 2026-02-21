@@ -1,0 +1,264 @@
+<div id="wrapper">
+  <!-- Sidebar -->
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" routerLink="/backoffice/dashboard">
+      <div class="sidebar-brand-icon rotate-n-15">
+        <i class="fas fa-campground"></i>
+      </div>
+      <div class="sidebar-brand-text mx-3">CampConnect</div>
+    </a>
+    <hr class="sidebar-divider my-0">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/dashboard">
+        <i class="fas fa-fw fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Management</div>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/sites">
+        <i class="fas fa-fw fa-map-marked-alt"></i>
+        <span>Site Validations</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/bookings">
+        <i class="fas fa-fw fa-calendar-check"></i>
+        <span>Bookings</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/contracts">
+        <i class="fas fa-fw fa-file-contract"></i>
+        <span>Contracts</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/billing">
+        <i class="fas fa-fw fa-file-invoice-dollar"></i>
+        <span>Billing & Invoices</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/orders">
+        <i class="fas fa-fw fa-shopping-cart"></i>
+        <span>Order Management</span>
+      </a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" routerLink="/backoffice/users">
+        <i class="fas fa-fw fa-users"></i>
+        <span>User Management</span>
+      </a>
+    </li>
+    <hr class="sidebar-divider d-none d-md-block">
+    <div class="text-center d-none d-md-inline">
+      <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+  </ul>
+
+  <!-- Content Wrapper -->
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content">
+      <!-- Topbar -->
+      <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+          <i class="fa fa-bars"></i>
+        </button>
+        <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+          <div class="input-group">
+            <input type="text" class="form-control bg-light border-0 small" placeholder="Search users..." aria-label="Search">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="button">
+                <i class="fas fa-search fa-sm"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+              <img class="img-profile rounded-circle" src="assets/backoffice-vendor/img/undraw_profile.svg" alt="Profile">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow">
+              <a class="dropdown-item" routerLink="/frontoffice/login">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Page Content -->
+      <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">User Management</h1>
+          <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Add New User
+          </button>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+          </div>
+          <div class="card-body filter-section">
+            <div class="row">
+              <div class="col-md-4">
+                <label for="filterRole">Filter by Role</label>
+                <select class="form-control" id="filterRole" [(ngModel)]="filterRole" (change)="applyFilters()">
+                  <option value="">All Roles</option>
+                  <option value="admin">Admin</option>
+                  <option value="owner">Owner</option>
+                  <option value="camper">Camper</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="filterStatus">Filter by Status</label>
+                <select class="form-control" id="filterStatus" [(ngModel)]="filterStatus" (change)="applyFilters()">
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label>&nbsp;</label>
+                <button class="btn btn-secondary btn-block" (click)="resetFilters()">
+                  <i class="fas fa-redo"></i> Reset Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Users List</h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Avatar</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of filteredUsers">
+                    <td><img [src]="user.avatar" class="avatar-circle" alt="Avatar"></td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <span *ngIf="user.role === 'admin'" class="badge badge-admin">Admin</span>
+                      <span *ngIf="user.role === 'owner'" class="badge badge-editor">Owner</span>
+                      <span *ngIf="user.role === 'camper'" class="badge badge-user">Camper</span>
+                    </td>
+                    <td>
+                      <label class="toggle-switch">
+                        <input type="checkbox" [checked]="user.status" (change)="toggleUserStatus(user)">
+                        <span class="slider"></span>
+                      </label>
+                      <span *ngIf="user.status" class="badge badge-active ml-2">Active</span>
+                      <span *ngIf="!user.status" class="badge badge-inactive ml-2">Inactive</span>
+                    </td>
+                    <td>{{ user.lastLogin }}</td>
+                    <td>
+                      <button class="btn btn-danger btn-sm action-btn" (click)="deleteUser(user.id)">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+      <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+          <span>Copyright &copy; CampConnect 2025</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New User</h5>
+        <button class="close" type="button" data-bs-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createUser(); $event.preventDefault()" action="javascript:void(0)">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" class="form-control" [(ngModel)]="newUser.firstName" name="firstName" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" class="form-control" [(ngModel)]="newUser.lastName" name="lastName" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" [(ngModel)]="newUser.email" name="email" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" [(ngModel)]="newUser.password" name="password" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Role</label>
+                <select class="form-control" [(ngModel)]="newUser.role" name="role">
+                  <option value="ADMIN">Admin</option>
+                  <option value="OWNER">Owner</option>
+                  <option value="CAMPER">Camper</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit">Create User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a class="scroll-to-top rounded" (click)="scrollToTop()" style="cursor: pointer;">
+  <i class="fas fa-angle-up"></i>
+</a>

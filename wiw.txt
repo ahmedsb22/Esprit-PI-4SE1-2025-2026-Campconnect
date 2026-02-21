@@ -1,0 +1,662 @@
+================================================================================
+  CAMPCONNECT — FULL PROJECT DOCUMENTATION
+  Generated: 2026-02-20
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+
+CampConnect is a full-stack web application for managing camping sites, equipment
+rentals, bookings, contracts, and invoicing. It consists of:
+
+  - Backend  : Spring Boot 3.1.6 (Java 17, JPA/Hibernate, MySQL)
+  - Frontend : Angular 17 (Standalone Components, TypeScript)
+  - Database : MySQL (campconnect1)
+
+No authentication or security is required. All APIs are public and accessible
+by any visitor without a token or login.
+
+--------------------------------------------------------------------------------
+2. TECHNOLOGY STACK
+--------------------------------------------------------------------------------
+
+BACKEND:
+  - Java 17 (Corretto)
+  - Spring Boot 3.1.6
+  - Spring Data JPA + Hibernate 6.2
+  - MySQL Connector 8.0.33
+  - HikariCP (connection pool)
+  - Lombok (boilerplate reduction)
+  - SpringDoc OpenAPI (Swagger UI)
+  - Jakarta Validation API
+
+FRONTEND:
+  - Angular 17 (Standalone Components)
+  - TypeScript 5.x
+  - Angular HttpClient (consuming REST APIs)
+  - SB Admin 2 (Bootstrap 4 backoffice theme)
+  - FontAwesome icons
+  - Chart.js (dashboard charts)
+  - SCSS
+
+--------------------------------------------------------------------------------
+3. HOW TO RUN
+--------------------------------------------------------------------------------
+
+STEP 1 — Start MySQL and ensure campconnect1 database is accessible.
+         If you have stale .ibd tablespace files, run in MySQL Workbench:
+           DROP DATABASE IF EXISTS campconnect1;
+
+STEP 2 — Start the backend:
+           ./mvnw spring-boot:run
+         Wait for: "Started ExamApplication in X seconds"
+         Tables are created automatically via ddl-auto=update.
+         Demo data is seeded automatically by DataInitializer on first run.
+
+STEP 3 — Start the frontend:
+           cd frontend
+           ng serve
+         Open: http://localhost:4200
+
+STEP 4 — Access the application:
+           Frontoffice : http://localhost:4200/frontoffice/home
+           Backoffice  : http://localhost:4200/backoffice/dashboard
+           Swagger UI  : http://localhost:8089/swagger-ui.html
+           API Docs    : http://localhost:8089/api-docs
+
+--------------------------------------------------------------------------------
+4. APPLICATION PROPERTIES (src/main/resources/application.properties)
+--------------------------------------------------------------------------------
+
+server.port=8089
+spring.datasource.url=jdbc:mysql://localhost:3306/campconnect1?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.defer-datasource-initialization=true
+springdoc.swagger-ui.enabled=true
+
+--------------------------------------------------------------------------------
+5. DATABASE SCHEMA
+--------------------------------------------------------------------------------
+
+Tables created automatically by Hibernate (ddl-auto=update):
+
+  roles
+  ├── id          BIGINT PK AUTO_INCREMENT
+  ├── name        ENUM('ADMIN','CAMPER','OWNER') UNIQUE NOT NULL
+  └── permissions VARCHAR(500)
+
+  users
+  ├── id            BIGINT PK AUTO_INCREMENT
+  ├── first_name    VARCHAR(100)
+  ├── last_name     VARCHAR(100)
+  ├── email         VARCHAR(255) UNIQUE
+  ├── password      VARCHAR(255)
+  ├── phone         VARCHAR(20)
+  ├── address       VARCHAR(500)
+  ├── profile_image VARCHAR(500)
+  ├── created_at    DATETIME NOT NULL
+  └── updated_at    DATETIME
+
+  user_roles (join table)
+  ├── user_id  BIGINT FK → users.id
+  └── role_id  BIGINT FK → roles.id
+
+  camping_sites
+  ├── id              BIGINT PK AUTO_INCREMENT
+  ├── name            VARCHAR(100)
+  ├── description     TEXT
+  ├── location        VARCHAR(255)
+  ├── address         VARCHAR(255)
+  ├── price_per_night DECIMAL(10,2)
+  ├── capacity        INT
+  ├── category        VARCHAR(50)   (BEACH/FOREST/DESERT/MOUNTAIN/NATURE)
+  ├── image_url       VARCHAR(500)
+  ├── has_wifi        BIT
+  ├── has_parking     BIT
+  ├── has_restrooms   BIT
+  ├── has_showers     BIT
+  ├── has_electricity BIT
+  ├── has_pet_friendly BIT
+  ├── is_active       BIT
+  ├── is_verified     BIT
+  ├── rating          DECIMAL(3,2)
+  ├── review_count    INT
+  ├── owner_id        BIGINT FK → users.id (nullable)
+  ├── created_at      DATETIME NOT NULL
+  └── updated_at      DATETIME NOT NULL
+
+  equipment
+  ├── id                 BIGINT PK AUTO_INCREMENT
+  ├── name               VARCHAR(100)
+  ├── description        TEXT
+  ├── category           VARCHAR(50)
+  ├── price_per_day      DECIMAL(10,2)
+  ├── stock_quantity     INT
+  ├── available_quantity INT
+  ├── image_url          VARCHAR(500)
+  ├── specifications     VARCHAR(100)
+  ├── is_active          BIT
+  ├── rating             DECIMAL(3,2)
+  ├── review_count       INT
+  ├── provider_id        BIGINT FK → users.id (nullable)
+  ├── created_at         DATETIME NOT NULL
+  └── updated_at         DATETIME NOT NULL
+
+  reservations
+  ├── id                BIGINT PK AUTO_INCREMENT
+  ├── reservation_number VARCHAR(50) UNIQUE
+  ├── check_in_date     DATE
+  ├── check_out_date    DATE
+  ├── number_of_guests  INT
+  ├── total_price       DECIMAL(10,2)
+  ├── status            ENUM('PENDING','CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED','CANCELLED')
+  ├── special_requests  TEXT
+  ├── camper_id         BIGINT FK → users.id (nullable)
+  ├── camping_site_id   BIGINT FK → camping_sites.id (nullable)
+  ├── created_at        DATETIME NOT NULL
+  └── updated_at        DATETIME NOT NULL
+
+  reservation_equipment
+  ├── id            BIGINT PK AUTO_INCREMENT
+  ├── quantity      INT
+  ├── price_per_day DECIMAL(10,2)
+  ├── subtotal      DECIMAL(10,2)
+  ├── reservation_id BIGINT FK → reservations.id (nullable)
+  └── equipment_id  BIGINT FK → equipment.id (nullable)
+
+  contracts
+  ├── id              BIGINT PK AUTO_INCREMENT
+  ├── contract_number VARCHAR(50) UNIQUE
+  ├── terms           TEXT
+  ├── is_signed       BIT
+  ├── signed_at       DATETIME
+  ├── signature_url   VARCHAR(500)
+  ├── status          ENUM('DRAFT','PENDING','SIGNED','ACTIVE','COMPLETED','CANCELLED')
+  ├── reservation_id  BIGINT FK → reservations.id (nullable, unique)
+  ├── created_at      DATETIME NOT NULL
+  └── updated_at      DATETIME NOT NULL
+
+  invoices
+  ├── id                BIGINT PK AUTO_INCREMENT
+  ├── invoice_number    VARCHAR(50) UNIQUE
+  ├── total_amount      DECIMAL(10,2)
+  ├── status            ENUM('DRAFT','SENT','PAID','CANCELLED')
+  ├── issued_at         DATETIME
+  ├── notes             TEXT
+  ├── reservation_id    BIGINT FK → reservations.id (nullable)
+  └── equipment_order_id BIGINT FK → reservation_equipment.id (nullable)
+
+--------------------------------------------------------------------------------
+6. BACKEND REST API ENDPOINTS
+--------------------------------------------------------------------------------
+
+All endpoints are public — no Authorization header required.
+Base URL: http://localhost:8089
+
+--- USERS ---
+GET    /api/users              → List all users
+GET    /api/users/{id}         → Get user by ID
+POST   /api/users              → Create a new user
+PUT    /api/users/{id}         → Update user by ID
+PUT    /api/users/{id}/status  → Toggle user active status
+DELETE /api/users/{id}         → Delete user by ID
+
+Request body (POST/PUT):
+{
+  "firstName": "Mohamed",
+  "lastName": "Ben Ali",
+  "email": "mohamed@example.com",
+  "password": "pass123",
+  "phone": "+216 22 111 222",
+  "address": "Sousse, Tunisie"
+}
+
+--- CAMPING SITES ---
+GET    /api/sites              → List all camping sites
+GET    /api/sites/{id}         → Get site by ID
+GET    /api/sites/active       → List active sites only (isActive=true)
+GET    /api/sites/search       → Search sites by location/minPrice/maxPrice
+POST   /api/sites              → Create a new camping site
+PUT    /api/sites/{id}         → Update site by ID
+PUT    /api/sites/{id}/approve → Approve a site (isVerified=true)
+PUT    /api/sites/{id}/reject  → Reject a site (isActive=false)
+DELETE /api/sites/{id}         → Delete site by ID
+
+Request body (POST/PUT):
+{
+  "name": "Cap Serrat Beach Camp",
+  "description": "Beautiful beach camping",
+  "location": "Bizerte, Tunisia",
+  "address": "Route de Cap Serrat",
+  "pricePerNight": 45.00,
+  "capacity": 8,
+  "category": "BEACH",
+  "imageUrl": "https://...",
+  "hasWifi": true,
+  "hasParking": true,
+  "hasRestrooms": true,
+  "hasShowers": true,
+  "hasElectricity": true,
+  "hasPetFriendly": false,
+  "isActive": true,
+  "isVerified": true
+}
+
+--- EQUIPMENT ---
+GET    /api/equipment              → List all equipment
+GET    /api/equipment/{id}         → Get equipment by ID
+GET    /api/equipment/available    → List available equipment (isActive=true, stock>0)
+GET    /api/equipment/search       → Search by name/category/priceMin/priceMax
+GET    /api/equipment/category/{c} → Filter by category
+POST   /api/equipment              → Create new equipment
+PUT    /api/equipment/{id}         → Update equipment by ID
+DELETE /api/equipment/{id}         → Delete equipment by ID
+
+Request body (POST/PUT):
+{
+  "name": "Family Tent (6 Person)",
+  "description": "Spacious waterproof tent",
+  "category": "TENTS",
+  "pricePerDay": 35.00,
+  "stockQuantity": 10,
+  "availableQuantity": 10,
+  "imageUrl": "https://...",
+  "specifications": "6 persons Waterproof",
+  "isActive": true
+}
+
+--- BOOKINGS (Reservations) ---
+GET    /api/bookings              → List all reservations
+GET    /api/bookings/{id}         → Get reservation by ID
+POST   /api/bookings              → Create a new reservation
+PUT    /api/bookings/{id}         → Update reservation by ID
+PUT    /api/bookings/{id}/status  → Update reservation status
+DELETE /api/bookings/{id}         → Delete reservation by ID
+
+Request body (POST):
+{
+  "campingSite": { "id": 1 },
+  "checkInDate": "2026-03-15",
+  "checkOutDate": "2026-03-18",
+  "numberOfGuests": 4,
+  "status": "PENDING"
+}
+
+--- EQUIPMENT ORDERS ---
+GET    /api/equipment-orders              → List all equipment orders
+GET    /api/equipment-orders/{id}         → Get order by ID
+POST   /api/equipment-orders              → Create new equipment order
+PUT    /api/equipment-orders/{id}         → Update order by ID
+PUT    /api/equipment-orders/{id}/status  → Confirm/complete an order
+PUT    /api/equipment-orders/{id}/cancel  → Cancel an order
+DELETE /api/equipment-orders/{id}         → Delete order by ID
+
+Request body (POST):
+{
+  "equipment": { "id": 1 },
+  "quantity": 2
+}
+(pricePerDay and subtotal are auto-calculated from the equipment)
+
+--- CONTRACTS ---
+GET    /api/contracts              → List all contracts
+GET    /api/contracts/{id}         → Get contract by ID
+POST   /api/contracts              → Create a new contract
+PUT    /api/contracts/{id}         → Update contract by ID
+DELETE /api/contracts/{id}         → Delete contract by ID
+
+Request body (POST/PUT):
+{
+  "contractNumber": "CTR-001",
+  "terms": "Guest agrees to follow all site rules.",
+  "isSigned": false,
+  "status": "PENDING",
+  "reservation": { "id": 1 }
+}
+
+--- INVOICES ---
+GET    /api/invoices              → List all invoices
+GET    /api/invoices/{id}         → Get invoice by ID
+POST   /api/invoices              → Create a new invoice
+PUT    /api/invoices/{id}         → Update invoice by ID
+DELETE /api/invoices/{id}         → Delete invoice by ID
+
+Request body (POST/PUT):
+{
+  "invoiceNumber": "INV-001",
+  "totalAmount": 345.00,
+  "status": "DRAFT",
+  "notes": "Awaiting payment",
+  "reservation": { "id": 1 }
+}
+
+--- ANALYTICS ---
+GET    /api/analytics/dashboard   → Dashboard statistics
+
+Response:
+{
+  "totalUsers": 10,
+  "totalSites": 10,
+  "totalBookings": 4,
+  "totalOrders": 3,
+  "totalContracts": 2,
+  "totalInvoices": 3,
+  "revenueStats": {
+    "totalRevenue": 12500.00,
+    "paidInvoices": 2,
+    "pendingInvoices": 1
+  },
+  "bookingStats": {
+    "pending": 1,
+    "confirmed": 1,
+    "completed": 1,
+    "cancelled": 1
+  }
+}
+
+--------------------------------------------------------------------------------
+7. FRONTEND STRUCTURE (Angular)
+--------------------------------------------------------------------------------
+
+src/app/
+├── app.routes.ts              → Root routing (frontoffice + backoffice, no auth guard)
+├── core/
+│   ├── auth.guard.ts          → Always returns true (no auth required)
+│   └── auth.interceptor.ts    → HTTP interceptor (no token added)
+├── services/
+│   ├── site.service.ts        → HTTP calls to /api/sites
+│   ├── equipment.service.ts   → HTTP calls to /api/equipment
+│   ├── booking.service.ts     → HTTP calls to /api/bookings
+│   ├── order.service.ts       → HTTP calls to /api/equipment-orders
+│   ├── contract.service.ts    → HTTP calls to /api/contracts
+│   ├── invoice.service.ts     → HTTP calls to /api/invoices
+│   ├── auth.service.ts        → Stores current user in localStorage (no JWT)
+│   ├── admin.service.ts       → HTTP calls to /api/analytics
+│   └── api-config.service.ts  → Base URL config (http://localhost:8089/api)
+├── models/
+│   └── camping-site.model.ts  → CampingSite + CampingSiteView interfaces
+├── frontoffice/
+│   ├── home/                  → Landing page
+│   ├── camping-sites/         → Browse + book camping sites
+│   ├── equipment/             → Browse + rent equipment
+│   ├── login/                 → Simple login (saves user to localStorage)
+│   └── register/              → Simple register (POST /api/users)
+└── backoffice/
+    ├── dashboard/             → Stats cards + charts
+    ├── sites/                 → Manage camping sites (approve/reject/delete)
+    ├── bookings/              → Manage reservations (full CRUD + status)
+    ├── orders/                → Manage equipment orders
+    ├── contracts/             → Manage contracts
+    ├── billing/               → Manage invoices
+    └── users/                 → Manage users (CRUD)
+
+--------------------------------------------------------------------------------
+8. FRONTEND ROUTES
+--------------------------------------------------------------------------------
+
+http://localhost:4200/                              → redirects to /frontoffice/home
+http://localhost:4200/frontoffice/home             → Landing page
+http://localhost:4200/frontoffice/camping-sites    → Browse sites + book
+http://localhost:4200/frontoffice/equipment        → Browse equipment + rent
+http://localhost:4200/frontoffice/login            → Login (no auth, saves to localStorage)
+http://localhost:4200/frontoffice/register         → Register (POST /api/users)
+
+http://localhost:4200/backoffice/dashboard         → Admin dashboard
+http://localhost:4200/backoffice/sites             → Site management
+http://localhost:4200/backoffice/bookings          → Booking management ← NEW
+http://localhost:4200/backoffice/orders            → Equipment order management
+http://localhost:4200/backoffice/contracts         → Contract management
+http://localhost:4200/backoffice/billing           → Invoice management
+http://localhost:4200/backoffice/users             → User management
+
+--------------------------------------------------------------------------------
+9. HOW FRONTEND CONSUMES BACKEND
+--------------------------------------------------------------------------------
+
+Environment config (frontend/src/environments/environment.ts):
+  apiUrl: 'http://localhost:8089/api'
+
+Angular services use HttpClient to call the backend directly:
+
+EXAMPLE — Booking a camping site (frontoffice):
+  User clicks "Book" on camping-sites page
+  → camping-sites.component.ts calls:
+      this.http.post('http://localhost:8089/api/bookings', {
+        campingSite: { id: siteId },
+        checkInDate: '2026-03-15',
+        checkOutDate: '2026-03-18',
+        numberOfGuests: 2,
+        status: 'PENDING'
+      })
+  → BookingController.java receives the request
+  → Loads CampingSite entity from DB (campingSiteRepository.findById)
+  → Creates and saves Reservation entity
+  → Returns saved Reservation as JSON
+  → Backoffice /bookings immediately shows the new booking
+
+EXAMPLE — Renting equipment (frontoffice):
+  User clicks "Rent" on equipment page
+  → equipment.component.ts calls:
+      this.http.post('http://localhost:8089/api/equipment-orders', {
+        equipment: { id: equipmentId },
+        quantity: 1
+      })
+  → EquipmentOrderController.java receives the request
+  → Loads Equipment entity from DB
+  → Auto-calculates pricePerDay and subtotal
+  → Saves ReservationEquipment entity
+  → Backoffice /orders immediately shows the new order
+
+PROXY CONFIG (frontend/proxy.conf.json):
+  { "/api": { "target": "http://localhost:8089", "secure": false } }
+  Used with: ng serve --proxy-config proxy.conf.json (optional — direct URL works too)
+
+CORS is configured on the backend (CorsConfig.java):
+  Allowed origins: http://localhost:4200
+  Allowed methods: GET, POST, PUT, DELETE, OPTIONS
+  Allowed headers: *
+
+--------------------------------------------------------------------------------
+10. ENTITIES AND RELATIONSHIPS
+--------------------------------------------------------------------------------
+
+User ─────────────────────┐
+  id, email, password,    │ owns (nullable)
+  firstName, lastName,    │
+  phone, address,         ├──── CampingSite
+  profileImage,           │       id, name, description, location
+  createdAt, updatedAt    │       pricePerNight, capacity, category
+                          │       imageUrl, isActive, isVerified
+                          │       hasWifi, hasParking, hasRestrooms
+                          │       hasShowers, hasElectricity
+                          │       rating, reviewCount
+                          │
+                          │ provides (nullable)
+                          ├──── Equipment
+                                  id, name, description, category
+                                  pricePerDay, stockQuantity, availableQuantity
+                                  imageUrl, specifications, isActive
+                                  rating, reviewCount
+
+Reservation ─────────────────────────────────────────────────────────
+  id, reservationNumber
+  checkInDate, checkOutDate
+  numberOfGuests, totalPrice
+  status (PENDING/CONFIRMED/CHECKED_IN/CHECKED_OUT/COMPLETED/CANCELLED)
+  specialRequests
+  ├── camper_id       FK → User (nullable)
+  └── camping_site_id FK → CampingSite (nullable)
+
+ReservationEquipment ────────────────────────────────────────────────
+  id, quantity, pricePerDay, subtotal
+  ├── reservation_id FK → Reservation (nullable)
+  └── equipment_id   FK → Equipment (nullable)
+
+Contract ────────────────────────────────────────────────────────────
+  id, contractNumber, terms, isSigned, signedAt, signatureUrl
+  status (DRAFT/PENDING/SIGNED/ACTIVE/COMPLETED/CANCELLED)
+  └── reservation_id FK → Reservation (nullable, unique)
+
+Invoice ─────────────────────────────────────────────────────────────
+  id, invoiceNumber, totalAmount, status (DRAFT/SENT/PAID/CANCELLED)
+  issuedAt, notes
+  ├── reservation_id     FK → Reservation (nullable)
+  └── equipment_order_id FK → ReservationEquipment (nullable)
+
+--------------------------------------------------------------------------------
+11. CRUD OPERATIONS SUMMARY
+--------------------------------------------------------------------------------
+
+Entity              | Create | Read | Update | Delete | Extra Endpoints
+--------------------|--------|------|--------|--------|---------------------------
+User                |  POST  |  GET |   PUT  | DELETE | PUT /{id}/status
+CampingSite         |  POST  |  GET |   PUT  | DELETE | GET /active, GET /search,
+                    |        |      |        |        | PUT /{id}/approve, PUT /{id}/reject
+Equipment           |  POST  |  GET |   PUT  | DELETE | GET /available, GET /search,
+                    |        |      |        |        | GET /category/{c}
+Reservation/Booking |  POST  |  GET |   PUT  | DELETE | PUT /{id}/status
+ReservationEquipment|  POST  |  GET |   PUT  | DELETE | PUT /{id}/status, PUT /{id}/cancel
+Contract            |  POST  |  GET |   PUT  | DELETE |
+Invoice             |  POST  |  GET |   PUT  | DELETE |
+Analytics           |   -    |  GET |    -   |   -    | GET /dashboard
+
+--------------------------------------------------------------------------------
+12. DATA SEEDING (Automatic)
+--------------------------------------------------------------------------------
+
+DataInitializer.java runs automatically on startup via @EventListener(ApplicationReadyEvent).
+It seeds data ONLY if the database is empty (userRepository.count() == 0).
+If seeding fails for any reason, the app continues — no crash.
+
+Seeded data:
+  - 3 roles         : ADMIN, CAMPER, OWNER
+  - 5 users         : admin, Mohamed, Fatma, Youssef, Leila
+  - 10 camping sites : Cap Serrat, Ain Draham, Djerba, Tozeur, Zaghouan,
+                       Hammamet, Ichkeul, Matmata, Tabarka, Douz
+  - 10 equipment    : Family Tent (35 TND/day), Sleeping Bag (12 TND/day),
+                       Camping Stove (18 TND/day), LED Lantern (8 TND/day),
+                       Hiking Backpack (20 TND/day), Kayak (45 TND/day),
+                       Mountain Bike (35 TND/day), Table+Chairs (15 TND/day),
+                       Solar Charger (12 TND/day), Snorkeling Set (22 TND/day)
+  - 4 reservations  : RES-001 (CONFIRMED), RES-002 (PENDING),
+                       RES-003 (COMPLETED), RES-004 (CANCELLED)
+  - 3 equipment orders linked to reservations
+  - 2 contracts     : CTR-001 (ACTIVE/SIGNED), CTR-002 (PENDING)
+  - 3 invoices      : INV-001 (PAID), INV-002 (SENT), INV-003 (PAID)
+
+--------------------------------------------------------------------------------
+13. BACKOFFICE PAGES AND THEIR API CALLS
+--------------------------------------------------------------------------------
+
+/backoffice/dashboard
+  → GET /api/analytics/dashboard
+  Shows: Total users, sites, bookings+orders, revenue, booking status charts
+
+/backoffice/sites
+  → GET /api/sites           (load all sites)
+  → PUT /api/sites/{id}/approve  (approve button)
+  → PUT /api/sites/{id}/reject   (reject button)
+  → DELETE /api/sites/{id}       (delete button)
+  → POST /api/sites              (add new site form)
+  → PUT /api/sites/{id}          (edit site form)
+
+/backoffice/bookings          ← NEW TAB
+  → GET /api/bookings         (load all reservations)
+  → POST /api/bookings        (create booking)
+  → PUT /api/bookings/{id}    (edit booking)
+  → PUT /api/bookings/{id}/status  (change status dropdown)
+  → DELETE /api/bookings/{id} (delete booking)
+
+/backoffice/orders
+  → GET /api/equipment-orders           (load all orders)
+  → PUT /api/equipment-orders/{id}/status   (confirm order)
+  → PUT /api/equipment-orders/{id}/cancel   (cancel order)
+  → DELETE /api/equipment-orders/{id}       (delete order)
+
+/backoffice/contracts
+  → GET /api/contracts        (load all contracts)
+  → POST /api/contracts       (create contract)
+  → PUT /api/contracts/{id}   (update/renew contract)
+  → DELETE /api/contracts/{id}(delete contract)
+
+/backoffice/billing
+  → GET /api/invoices         (load all invoices)
+  → POST /api/invoices        (create invoice)
+  → PUT /api/invoices/{id}    (update invoice)
+  → DELETE /api/invoices/{id} (delete invoice)
+
+/backoffice/users
+  → GET /api/users            (load all users)
+  → POST /api/users           (create user)
+  → PUT /api/users/{id}       (edit user)
+  → PUT /api/users/{id}/status (toggle active)
+  → DELETE /api/users/{id}    (delete user)
+
+--------------------------------------------------------------------------------
+14. FRONTOFFICE PAGES AND THEIR API CALLS
+--------------------------------------------------------------------------------
+
+/frontoffice/home
+  → Static landing page (no API calls)
+
+/frontoffice/camping-sites
+  → GET /api/sites/active     (load active sites)
+  → GET /api/sites/search     (search/filter sites)
+  → POST /api/bookings        (Book Now button)
+
+/frontoffice/equipment
+  → GET /api/equipment/available  (load available equipment)
+  → GET /api/equipment/search     (search equipment)
+  → POST /api/equipment-orders    (Rent Now button)
+
+/frontoffice/login
+  → GET /api/users            (find user by email — no JWT)
+  → Saves user to localStorage
+
+/frontoffice/register
+  → POST /api/users           (create new user)
+
+--------------------------------------------------------------------------------
+15. KEY DESIGN DECISIONS
+--------------------------------------------------------------------------------
+
+1. NO SECURITY
+   Spring Security is completely absent from the project.
+   All /api/* endpoints are open to all visitors.
+   No JWT, no roles, no @PreAuthorize annotations.
+
+2. NO STATIC FILES CONFLICT
+   src/main/resources/static/ and templates/ directories were deleted.
+   Spring Boot serves no static pages — only REST JSON APIs.
+
+3. NULLABLE FOREIGN KEYS
+   All @ManyToOne and @OneToOne relationships use nullable = true.
+   This prevents JPA from crashing when saving entities without
+   linked parent records (e.g., a booking without a user ID).
+
+4. JSON INFINITE LOOP PREVENTION
+   All lazy-loaded relationships use @JsonIgnoreProperties to prevent
+   Hibernate proxy serialization infinite loops.
+
+5. AUTO-SEED ON STARTUP
+   DataInitializer uses @EventListener(ApplicationReadyEvent) which fires
+   AFTER JPA schema creation is complete — no race condition.
+   Wrapped in try-catch so seeding failure never crashes the app.
+
+6. ddl-auto=update
+   Tables are created/altered automatically.
+   Safe to restart without losing data.
+   No manual SQL scripts needed.
+
+7. CORS
+   CorsConfig.java allows all origins, methods and headers from
+   http://localhost:4200 (Angular dev server).
+
+--------------------------------------------------------------------------------
+  END OF DOCUMENTATION
+================================================================================

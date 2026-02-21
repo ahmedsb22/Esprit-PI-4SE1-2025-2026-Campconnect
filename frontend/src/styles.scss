@@ -1,0 +1,24 @@
+/* You can add global styles to this file, and also import other style files */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Frontoffice template styles */
+@import "assets/vendor/aos/aos.css";
+@import "assets/vendor/glightbox/css/glightbox.css";
+@import "assets/vendor/swiper/swiper-bundle.min.css";
+@import "assets/css/main.css";
+@import "assets/css/campconnect-custom.css";
+
+/* Backoffice template styles */
+@import "assets/backoffice-css/sb-admin-2.css";
+@import "assets/backoffice-css/campconnect-backoffice.css";

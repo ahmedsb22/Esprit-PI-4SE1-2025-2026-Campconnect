@@ -1,0 +1,247 @@
+<header id="header" class="header d-flex align-items-center sticky-top">
+  <div class="container position-relative d-flex align-items-center justify-content-between">
+    <a routerLink="/frontoffice/home" class="logo d-flex align-items-center me-auto me-xl-0">
+      <i class="bi bi-tree" style="font-size: 2rem; color: #2E7D32; margin-right: 0.5rem;"></i>
+      <h1 class="sitename">CampConnect</h1><span>.</span>
+    </a>
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a routerLink="/frontoffice/home">Home</a></li>
+        <li><a routerLink="/frontoffice/home" fragment="about">About</a></li>
+        <li><a routerLink="/frontoffice/camping-sites" class="active">Camping Sites</a></li>
+        <li><a routerLink="/frontoffice/equipment">Equipment</a></li>
+        <li><a routerLink="/frontoffice/home" fragment="how-it-works">How It Works</a></li>
+        <li class="dropdown">
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><span>Account</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a routerLink="/frontoffice/login">Login</a></li>
+            <li><a routerLink="/frontoffice/register">Register as Camper</a></li>
+            <li><a routerLink="/backoffice/dashboard">My Dashboard</a></li>
+          </ul>
+        </li>
+        <li><a routerLink="/frontoffice/home" fragment="contact">Contact</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+    <a class="btn-getstarted" routerLink="/frontoffice/equipment">Browse Equipment</a>
+  </div>
+</header>
+
+<main class="main">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8">
+          <h1>Discover Camping Sites</h1>
+          <p>Find your perfect outdoor escape across Tunisia's most beautiful locations</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters Section -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filter-card">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Location</label>
+            <select class="form-select" [(ngModel)]="filters.location">
+              <option value="">All Regions</option>
+              <option>North Tunisia</option>
+              <option>South Tunisia</option>
+              <option>Coastal</option>
+              <option>Mountain</option>
+              <option>Desert</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Price Range (TND/night)</label>
+            <select class="form-select" [(ngModel)]="filters.priceRange">
+              <option value="">Any Price</option>
+              <option>0 - 50 TND</option>
+              <option>50 - 100 TND</option>
+              <option>100 - 200 TND</option>
+              <option>200+ TND</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Site Type</label>
+            <select class="form-select" [(ngModel)]="filters.siteType">
+              <option value="">All Types</option>
+              <option>Tent Sites</option>
+              <option>RV/Caravan</option>
+              <option>Glamping</option>
+              <option>Group Sites</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Features</label>
+            <select class="form-select" [(ngModel)]="filters.features">
+              <option value="">All Features</option>
+              <option>Electricity</option>
+              <option>Water Access</option>
+              <option>Toilets</option>
+              <option>Fire Pit</option>
+              <option>WiFi</option>
+            </select>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12">
+            <button class="btn btn-book me-2" (click)="searchSites()">
+              <i class="bi bi-search"></i> Search
+            </button>
+            <button class="btn btn-outline-secondary" (click)="resetFilters()">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Camping Sites Grid -->
+  <section class="camping-sites py-5">
+    <div class="container">
+      <div class="row mb-4">
+        <div class="col-lg-6">
+          <h2>Available Camping Sites</h2>
+          <p class="text-muted">Showing {{ sites.length }} of {{ sites.length }}+ camping sites</p>
+        </div>
+        <div class="col-lg-6 text-lg-end">
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">
+              <i class="bi bi-grid-3x3-gap"></i> Grid
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+              <i class="bi bi-list-ul"></i> List
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!loading" class="row g-4">
+        <div class="col-lg-4 col-md-6" *ngFor="let site of sites">
+          <div class="card site-card">
+            <img [src]="site.image" [alt]="site.name">
+            <div class="card-body">
+              <div class="site-location">
+                <i class="bi bi-geo-alt-fill"></i> {{ site.location }}
+              </div>
+              <h3 class="site-title">{{ site.name }}</h3>
+              <p class="site-description">{{ site.description }}</p>
+              <div class="site-features">
+                <span class="site-feature" *ngFor="let feature of site.features">
+                  <i class="bi bi-check-circle-fill"></i> {{ feature }}
+                </span>
+              </div>
+              <div class="site-footer">
+                <div>
+                  <div class="site-price">{{ site.price | number:'1.0-2' }} TND <span class="site-price-unit">/night</span></div>
+                  <div class="site-rating">
+                    <i class="bi bi-star-fill"></i> {{ site.rating | number:'1.0-1' }} ({{ site.reviews }} reviews)
+                  </div>
+                </div>
+                <button class="btn btn-book" (click)="bookSite(site.id)">Book Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && sites.length === 0" class="text-center py-5">
+        <p class="text-muted">No camping sites available at the moment.</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="row mt-5" *ngIf="!loading && sites.length > 0">
+        <div class="col-12">
+          <nav>
+            <ul class="pagination justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" (click)="$event.preventDefault()" style="cursor: not-allowed;">Previous</a>
+              </li>
+              <li class="page-item active"><a class="page-link" (click)="$event.preventDefault()">1</a></li>
+              <li class="page-item"><a class="page-link" (click)="$event.preventDefault()">2</a></li>
+              <li class="page-item"><a class="page-link" (click)="$event.preventDefault()">3</a></li>
+              <li class="page-item"><a class="page-link" (click)="$event.preventDefault()">4</a></li>
+              <li class="page-item">
+                <a class="page-link" (click)="$event.preventDefault()">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="footer" class="footer dark-background">
+  <div class="footer-top">
+    <div class="container">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a routerLink="/frontoffice/home" class="logo d-flex align-items-center">
+            <span class="sitename">CampConnect</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>Your gateway to amazing camping experiences across Tunisia.</p>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a routerLink="/frontoffice/home">Home</a></li>
+            <li><a routerLink="/frontoffice/home" fragment="about">About</a></li>
+            <li><a routerLink="/frontoffice/camping-sites">Camping Sites</a></li>
+            <li><a routerLink="/frontoffice/equipment">Equipment</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Support</h4>
+          <ul>
+            <li><a routerLink="/frontoffice/home" fragment="how-it-works">How It Works</a></li>
+            <li><a routerLink="/frontoffice/home" fragment="contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4 col-md-12 footer-newsletter">
+          <h4>Newsletter</h4>
+          <p>Subscribe for camping tips and exclusive offers!</p>
+          <form class="php-email-form">
+            <div class="newsletter-form">
+              <input type="email" name="email" placeholder="Your email">
+              <input type="submit" value="Subscribe" (click)="$event.preventDefault(); subscribeNewsletter();">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container copyright text-center mt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="social-links d-flex justify-content-center mb-3">
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><i class="bi bi-twitter-x"></i></a>
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><i class="bi bi-facebook"></i></a>
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><i class="bi bi-instagram"></i></a>
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><i class="bi bi-linkedin"></i></a>
+        </div>
+        <div class="legal-row">
+          <p>© <span>Copyright</span> <strong class="sitename">CampConnect</strong> 2025. All Rights Reserved.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<a (click)="scrollToTop()" style="cursor: pointer;" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+  <i class="bi bi-arrow-up-short"></i>
+</a>

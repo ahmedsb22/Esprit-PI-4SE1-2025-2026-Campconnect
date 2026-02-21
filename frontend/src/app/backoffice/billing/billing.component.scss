@@ -1,0 +1,31 @@
+.badge-paid {
+  background-color: #1cc88a;
+  color: #fff;
+}
+
+.badge-pending {
+  background-color: #f6c23e;
+  color: #000;
+}
+
+.badge-cancelled {
+  background-color: #e74a3b;
+  color: #fff;
+}
+
+.filter-section {
+  background: #f8f9fc;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  border-left: 4px solid #4e73df;
+}
+
+.action-btn {
+  margin: 0 2px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}

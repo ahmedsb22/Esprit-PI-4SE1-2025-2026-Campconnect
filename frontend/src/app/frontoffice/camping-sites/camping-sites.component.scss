@@ -1,0 +1,143 @@
+.site-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #E0E0E0;
+  height: 100%;
+}
+
+.site-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(46, 125, 50, 0.15);
+}
+
+.site-card img {
+  height: 220px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.site-card .card-body {
+  padding: 1.5rem;
+}
+
+.site-location {
+  color: #757575;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.site-location i {
+  color: #2E7D32;
+  margin-right: 0.25rem;
+}
+
+.site-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #212121;
+}
+
+.site-description {
+  color: #616161;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.site-features {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.site-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #616161;
+}
+
+.site-feature i {
+  color: #2E7D32;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #EEEEEE;
+}
+
+.site-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2E7D32;
+}
+
+.site-price-unit {
+  font-size: 0.85rem;
+  color: #757575;
+  font-weight: 400;
+}
+
+.site-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #FFB300;
+}
+
+.filters-section {
+  background: #F5F5F5;
+  padding: 2rem 0;
+  margin-bottom: 3rem;
+}
+
+.filter-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.btn-book {
+  background: #2E7D32;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.btn-book:hover {
+  background: #1B5E20;
+  color: white;
+}
+
+.page-header {
+  padding: 6rem 0 3rem;
+  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  color: white;
+  margin-bottom: 0;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+}

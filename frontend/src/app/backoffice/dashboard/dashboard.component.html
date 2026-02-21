@@ -1,0 +1,285 @@
+<div id="wrapper">
+  <!-- Sidebar -->
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" routerLink="/backoffice/dashboard">
+      <div class="sidebar-brand-icon rotate-n-15">
+        <i class="fas fa-campground"></i>
+      </div>
+      <div class="sidebar-brand-text mx-3">CampConnect</div>
+    </a>
+    <hr class="sidebar-divider my-0">
+    <li class="nav-item active">
+      <a class="nav-link" routerLink="/backoffice/dashboard">
+        <i class="fas fa-fw fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Management</div>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/sites">
+        <i class="fas fa-fw fa-map-marked-alt"></i>
+        <span>Site Validations</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/bookings">
+        <i class="fas fa-fw fa-calendar-check"></i>
+        <span>Bookings</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/contracts">
+        <i class="fas fa-fw fa-file-contract"></i>
+        <span>Contracts</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/billing">
+        <i class="fas fa-fw fa-file-invoice-dollar"></i>
+        <span>Billing & Invoices</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/orders">
+        <i class="fas fa-fw fa-shopping-cart"></i>
+        <span>Order Management</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/users">
+        <i class="fas fa-fw fa-users"></i>
+        <span>User Management</span>
+      </a>
+    </li>
+    <hr class="sidebar-divider d-none d-md-block">
+    <div class="text-center d-none d-md-inline">
+      <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+  </ul>
+
+  <!-- Content Wrapper -->
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content">
+      <!-- Topbar -->
+      <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+          <i class="fa fa-bars"></i>
+        </button>
+        <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+          <div class="input-group">
+            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="button">
+                <i class="fas fa-search fa-sm"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-bell fa-fw"></i>
+              <span class="badge badge-danger badge-counter">3+</span>
+            </a>
+          </li>
+          <div class="topbar-divider d-none d-sm-block"></div>
+          <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+              <img class="img-profile rounded-circle" src="assets/backoffice-vendor/img/undraw_profile.svg" alt="Profile">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow">
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Profile
+              </a>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                Settings
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" routerLink="/frontoffice/login">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Logout
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Begin Page Content -->
+      <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+          <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+          </a>
+        </div>
+
+        <!-- Content Row - Real API Stats -->
+        <div class="row">
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Revenue (TND)</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.revenue | number:'1.0-0' }}</div>
+                  </div>
+                  <div class="col-auto"><i class="fas fa-calendar fa-2x text-gray-300"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Bookings &amp; Orders</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.totalOrders }}</div>
+                  </div>
+                  <div class="col-auto"><i class="fas fa-campground fa-2x text-gray-300"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Camping Sites</div>
+                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ stats.totalSites }}</div>
+                  </div>
+                  <div class="col-auto"><i class="fas fa-map-marked-alt fa-2x text-gray-300"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total Users</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.totalUsers }}</div>
+                  </div>
+                  <div class="col-auto"><i class="fas fa-users fa-2x text-gray-300"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Row -->
+        <div class="row">
+          <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Revenue Overview</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-area">
+                  <canvas id="myAreaChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Booking Sources</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                  <canvas id="myPieChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                  <span class="mr-2"><i class="fas fa-circle text-primary"></i> Direct</span>
+                  <span class="mr-2"><i class="fas fa-circle text-success"></i> Referral</span>
+                  <span class="mr-2"><i class="fas fa-circle text-info"></i> Social</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Row -->
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
+              </div>
+              <div class="card-body">
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1">New site validation request</h6>
+                      <small>3 mins ago</small>
+                    </div>
+                    <p class="mb-1">Mountain View Campsite submitted for approval</p>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1">Invoice payment received</h6>
+                      <small>25 mins ago</small>
+                    </div>
+                    <p class="mb-1">Invoice #INV-2024-001 paid - 2,500 TND</p>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1">New user registered</h6>
+                      <small>1 hour ago</small>
+                    </div>
+                    <p class="mb-1">John Doe joined the platform</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Quick Stats</h6>
+              </div>
+              <div class="card-body">
+                <h4 class="small font-weight-bold">Occupancy Rate <span class="float-right">80%</span></h4>
+                <div class="progress mb-4">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 80%"></div>
+                </div>
+                <h4 class="small font-weight-bold">Customer Satisfaction <span class="float-right">92%</span></h4>
+                <div class="progress mb-4">
+                  <div class="progress-bar bg-info" role="progressbar" style="width: 92%"></div>
+                </div>
+                <h4 class="small font-weight-bold">Pending Approvals <span class="float-right">12</span></h4>
+                <div class="progress mb-4">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                </div>
+                <h4 class="small font-weight-bold">Revenue Target <span class="float-right">Complete!</span></h4>
+                <div class="progress">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+      <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+          <span>Copyright &copy; CampConnect 2025</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+  <i class="fas fa-angle-up"></i>
+</a>

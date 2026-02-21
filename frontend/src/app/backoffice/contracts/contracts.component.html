@@ -1,0 +1,237 @@
+<div id="wrapper">
+  <!-- Sidebar -->
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" routerLink="/backoffice/dashboard">
+      <div class="sidebar-brand-icon rotate-n-15">
+        <i class="fas fa-campground"></i>
+      </div>
+      <div class="sidebar-brand-text mx-3">CampConnect</div>
+    </a>
+    <hr class="sidebar-divider my-0">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/dashboard">
+        <i class="fas fa-fw fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Management</div>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/sites">
+        <i class="fas fa-fw fa-map-marked-alt"></i>
+        <span>Site Validations</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/bookings">
+        <i class="fas fa-fw fa-calendar-check"></i>
+        <span>Bookings</span>
+      </a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" routerLink="/backoffice/contracts">
+        <i class="fas fa-fw fa-file-contract"></i>
+        <span>Contracts</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/billing">
+        <i class="fas fa-fw fa-file-invoice-dollar"></i>
+        <span>Billing & Invoices</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/orders">
+        <i class="fas fa-fw fa-shopping-cart"></i>
+        <span>Order Management</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/backoffice/users">
+        <i class="fas fa-fw fa-users"></i>
+        <span>User Management</span>
+      </a>
+    </li>
+    <hr class="sidebar-divider d-none d-md-block">
+    <div class="text-center d-none d-md-inline">
+      <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+  </ul>
+
+  <!-- Content Wrapper -->
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content">
+      <!-- Topbar -->
+      <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+          <i class="fa fa-bars"></i>
+        </button>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+              <img class="img-profile rounded-circle" src="assets/backoffice-vendor/img/undraw_profile.svg" alt="Profile">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow">
+              <a class="dropdown-item" routerLink="/frontoffice/login">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Page Content -->
+      <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">Contracts Management</h1>
+          <button class="btn btn-sm btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createContractModal">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Create Contract
+          </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Contracts</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.active }}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-file-signature fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Signature</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending }}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Expired Contracts</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.expired }}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contracts Table -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Contracts List</h6>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Contract ID</th>
+                    <th>Site Name</th>
+                    <th>Owner</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let contract of contracts">
+                    <td>{{ contract.contractId }}</td>
+                    <td>{{ contract.siteName }}</td>
+                    <td>{{ contract.owner }}</td>
+                    <td>{{ contract.startDate }}</td>
+                    <td>{{ contract.endDate }}</td>
+                    <td>
+                      <span *ngIf="contract.status === 'active'" class="badge badge-active">Active</span>
+                      <span *ngIf="contract.status === 'pending'" class="badge badge-pending">Pending</span>
+                      <span *ngIf="contract.status === 'expired'" class="badge badge-expired">Expired</span>
+                    </td>
+                    <td>
+                      <button class="btn btn-info btn-sm action-btn" (click)="viewContract(contract.id)">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                      <button class="btn btn-success btn-sm action-btn" (click)="downloadContract(contract.id)">
+                        <i class="fas fa-download"></i> Download
+                      </button>
+                      <button *ngIf="contract.status === 'expired'" class="btn btn-warning btn-sm action-btn" (click)="renewContract(contract.id)">
+                        <i class="fas fa-redo"></i> Renew
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+      <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+          <span>Copyright &copy; CampConnect 2025</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Create Contract Modal -->
+<div class="modal fade" id="createContractModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Contract</h5>
+        <button class="close" type="button" data-bs-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Booking ID</label>
+                <input type="number" class="form-control" [(ngModel)]="contractForm.bookingId" name="bookingId" required>
+                <small class="text-muted">Use an existing booking id to generate a contract.</small>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="button" (click)="createContract()">Create Contract</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a class="scroll-to-top rounded" (click)="scrollToTop()" style="cursor: pointer;">
+  <i class="fas fa-angle-up"></i>
+</a>

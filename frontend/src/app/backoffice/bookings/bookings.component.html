@@ -1,0 +1,185 @@
+<div id="wrapper">
+  <!-- Sidebar -->
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" routerLink="/backoffice/dashboard">
+      <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-campground"></i></div>
+      <div class="sidebar-brand-text mx-3">CampConnect</div>
+    </a>
+    <hr class="sidebar-divider my-0">
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/dashboard"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Management</div>
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/sites"><i class="fas fa-fw fa-map-marked-alt"></i><span>Site Validations</span></a></li>
+    <li class="nav-item active"><a class="nav-link" routerLink="/backoffice/bookings"><i class="fas fa-fw fa-calendar-check"></i><span>Bookings</span></a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/orders"><i class="fas fa-fw fa-shopping-cart"></i><span>Order Management</span></a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/contracts"><i class="fas fa-fw fa-file-contract"></i><span>Contracts</span></a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/billing"><i class="fas fa-fw fa-file-invoice-dollar"></i><span>Billing &amp; Invoices</span></a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/users"><i class="fas fa-fw fa-users"></i><span>User Management</span></a></li>
+    <hr class="sidebar-divider d-none d-md-block">
+    <div class="text-center d-none d-md-inline">
+      <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+  </ul>
+
+  <!-- Content Wrapper -->
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content">
+      <!-- Topbar -->
+      <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"><i class="fa fa-bars"></i></button>
+        <span class="h5 mb-0 text-gray-800 font-weight-bold">Booking Management</span>
+        <ul class="navbar-nav ml-auto">
+          <div class="topbar-divider d-none d-sm-block"></div>
+          <li class="nav-item"><a class="nav-link" routerLink="/frontoffice/home"><i class="fas fa-home mr-1"></i>Front Office</a></li>
+        </ul>
+      </nav>
+
+      <!-- Page Content -->
+      <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">Bookings</h1>
+          <button class="btn btn-primary btn-sm shadow-sm" (click)="openCreate()">
+            <i class="fas fa-plus fa-sm text-white-50 mr-1"></i> New Booking
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card shadow mb-3">
+          <div class="card-body py-2">
+            <div class="row align-items-center">
+              <div class="col-md-5 mb-2 mb-md-0">
+                <input type="text" class="form-control form-control-sm" placeholder="Search by reservation #, camper, site..."
+                  [(ngModel)]="searchTerm" (input)="applyFilter()">
+              </div>
+              <div class="col-md-4 mb-2 mb-md-0">
+                <select class="form-control form-control-sm" [(ngModel)]="filterStatus" (change)="applyFilter()">
+                  <option value="">All Statuses</option>
+                  <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 text-right">
+                <button class="btn btn-outline-secondary btn-sm" (click)="loadBookings()">
+                  <i class="fas fa-sync-alt mr-1"></i> Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error / Loading -->
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+        <div *ngIf="loading" class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i></div>
+
+        <!-- Table -->
+        <div class="card shadow mb-4" *ngIf="!loading">
+          <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">All Bookings ({{ filteredBookings.length }})</h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Reservation No.</th>
+                    <th>Camper</th>
+                    <th>Camping Site</th>
+                    <th>Check-In</th>
+                    <th>Check-Out</th>
+                    <th>Guests</th>
+                    <th>Total (TND)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="filteredBookings.length === 0">
+                    <td colspan="10" class="text-center text-muted py-4">No bookings found.</td>
+                  </tr>
+                  <tr *ngFor="let b of filteredBookings; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td><span class="font-weight-bold text-primary">{{ b.reservationNumber }}</span></td>
+                    <td>{{ b.camper }}</td>
+                    <td>{{ b.siteName }} <small class="text-muted d-block">{{ b.siteLocation }}</small></td>
+                    <td>{{ b.checkInDate }}</td>
+                    <td>{{ b.checkOutDate }}</td>
+                    <td>{{ b.numberOfGuests }}</td>
+                    <td>{{ b.totalPrice | number:'1.2-2' }}</td>
+                    <td>
+                      <span class="badge {{ statusClass(b.status) }}">{{ b.status }}</span>
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-info btn-sm mr-1" title="Edit" (click)="openEdit(b)">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <div class="dropdown d-inline-block mr-1">
+                          <button class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" title="Change Status">
+                            <i class="fas fa-exchange-alt"></i>
+                          </button>
+                          <div class="dropdown-menu">
+                            <a class="dropdown-item" *ngFor="let s of statusOptions" (click)="updateStatus(b.id, s)">
+                              {{ s }}
+                            </a>
+                          </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" title="Delete" (click)="deleteBooking(b.id)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+      <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+          <span>Copyright &copy; CampConnect 2025</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <h5 class="font-weight-bold mb-3">{{ editMode ? 'Edit Booking' : 'New Booking' }}</h5>
+    <div class="form-group">
+      <label>Check-In Date</label>
+      <input type="date" class="form-control" [(ngModel)]="form.checkInDate">
+    </div>
+    <div class="form-group">
+      <label>Check-Out Date</label>
+      <input type="date" class="form-control" [(ngModel)]="form.checkOutDate">
+    </div>
+    <div class="form-group">
+      <label>Number of Guests</label>
+      <input type="number" class="form-control" [(ngModel)]="form.numberOfGuests" min="1">
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select class="form-control" [(ngModel)]="form.status">
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Special Requests</label>
+      <textarea class="form-control" [(ngModel)]="form.specialRequests" rows="2"></textarea>
+    </div>
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-secondary mr-2" (click)="cancelForm()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveBooking()">
+        <i class="fas fa-save mr-1"></i>{{ editMode ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </div>
+</div>
