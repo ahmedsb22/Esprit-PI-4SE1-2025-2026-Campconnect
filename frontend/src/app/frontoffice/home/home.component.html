@@ -12,12 +12,13 @@
         <li><a routerLink="/frontoffice/equipment">Equipment</a></li>
         <li><a routerLink="/frontoffice/home" fragment="how-it-works" (click)="scrollTo('how-it-works')">How It Works</a></li>
         <li class="dropdown">
-          <a (click)="$event.preventDefault()" style="cursor: pointer;"><span>Account</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <a (click)="$event.preventDefault()" style="cursor: pointer;"><span>Compte</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
           <ul>
-            <li><a routerLink="/frontoffice/login">Login</a></li>
-            <li><a routerLink="/frontoffice/register">Register as Camper</a></li>
-            <li><a routerLink="/frontoffice/register">Become a Provider</a></li>
-            <li><a routerLink="/backoffice/dashboard">My Dashboard</a></li>
+            <li *ngIf="!authService.isAuthenticated()"><a routerLink="/frontoffice/login">Connexion</a></li>
+            <li *ngIf="!authService.isAuthenticated()"><a routerLink="/frontoffice/register">S'inscrire</a></li>
+            <li *ngIf="authService.isAuthenticated()"><a routerLink="/frontoffice/profile">Mon Profil</a></li>
+            <li *ngIf="authService.hasRole('ADMIN') || authService.hasRole('OWNER')"><a routerLink="/backoffice/dashboard">Tableau de bord</a></li>
+            <li *ngIf="authService.isAuthenticated()"><a (click)="authService.logout()" style="cursor: pointer;">Déconnexion</a></li>
           </ul>
         </li>
         <li><a routerLink="/frontoffice/home" fragment="contact" (click)="scrollTo('contact')">Contact</a></li>

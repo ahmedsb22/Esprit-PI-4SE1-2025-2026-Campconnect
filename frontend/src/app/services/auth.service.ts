@@ -1,173 +1,103 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, catchError, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { ApiConfigService } from './api-config.service';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  roles?: string[];
-}
-
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    roles?: string[];
-    role?: string;
-  };
-}
-
-export interface User {
-  id?: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  roles?: string[];
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Observable, BehaviorSubject, tap, map } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { AuthResponse, LoginRequest, RegisterRequest, UpdateProfileRequest, User } from '../models/auth.model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiConfig = inject(ApiConfigService);
-  private apiUrl = this.apiConfig.getEndpointUrl('/auth');
+  private router = inject(Router);
+  private apiUrl = `${environment.apiUrl}/auth`;
+  
   private tokenKey = 'campconnect_token';
   private userKey = 'campconnect_user';
-  private authStatus$ = new BehaviorSubject<boolean>(this.isAuthenticated());
+  
+  private currentUserSubject = new BehaviorSubject<AuthResponse | null>(this.getStoredUser());
+  public currentUser$ = this.currentUserSubject.asObservable();
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap(response => {
-          this.setToken(response.token);
-          this.setUser(response.user);
-          this.authStatus$.next(true);
-        }),
-        catchError(error => this.handleError('login', error))
+          this.handleAuthResponse(response);
+        })
       );
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
-    const payload: any = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password,
-      roles: data.roles ?? ['CAMPER'],
-      active: true
-    };
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload)
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data)
       .pipe(
         tap(response => {
-          this.setToken(response.token);
-          this.setUser(response.user);
-          this.authStatus$.next(true);
-        }),
-        catchError(error => this.handleError('register', error))
-      );
-  }
-
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/profile`)
-      .pipe(
-        catchError(error => this.handleError('getCurrentUser', error))
-      );
-  }
-
-  getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user/${id}`)
-      .pipe(
-        catchError(error => this.handleError('getUserById', error))
-      );
-  }
-
-  updateProfile(id: number, user: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/profile/${id}`, user)
-      .pipe(
-        tap(response => this.setUser(response)),
-        catchError(error => this.handleError('updateProfile', error))
-      );
-  }
-
-  changePassword(oldPassword: string, newPassword: string): Observable<{ message: string }> {
-    const passwordRequest = {
-      oldPassword,
-      newPassword
-    };
-    
-    return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, passwordRequest)
-      .pipe(
-        catchError(error => this.handleError('changePassword', error))
+          this.handleAuthResponse(response);
+        })
       );
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
-    this.authStatus$.next(false);
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/frontoffice/login']);
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, password });
+  }
+
+  getProfile(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/profile`);
+  }
+
+  updateProfile(request: UpdateProfileRequest): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/profile`, request).pipe(
+      tap(user => {
+        const currentAuth = this.currentUserSubject.value;
+        if (currentAuth) {
+          const updatedAuth = {
+            ...currentAuth,
+            firstName: user.firstName,
+            lastName: user.lastName
+          };
+          this.handleAuthResponse(updatedAuth);
+        }
+      })
+    );
+  }
+
+  private handleAuthResponse(response: AuthResponse): void {
+    localStorage.setItem(this.tokenKey, response.token);
+    localStorage.setItem(this.userKey, JSON.stringify(response));
+    this.currentUserSubject.next(response);
   }
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  getUser(): any {
-    const userStr = localStorage.getItem(this.userKey);
-    return userStr ? JSON.parse(userStr) : null;
+  getStoredUser(): AuthResponse | null {
+    const user = localStorage.getItem(this.userKey);
+    return user ? JSON.parse(user) : null;
   }
 
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
 
-  isAdmin(): boolean {
-    const user = this.getUser();
-    const roles = user?.roles ?? (user?.role ? [user.role] : []);
-    return roles.includes('ADMIN');
+  hasRole(roleName: string): boolean {
+    const user = this.getStoredUser();
+    return user ? user.roles.includes(roleName) : false;
   }
 
-  isProvider(): boolean {
-    const user = this.getUser();
-    const roles = user?.roles ?? (user?.role ? [user.role] : []);
-    return roles.includes('PROVIDER');
-  }
-
-  isCamper(): boolean {
-    const user = this.getUser();
-    const roles = user?.roles ?? (user?.role ? [user.role] : []);
-    return roles.includes('CAMPER');
-  }
-
-  getAuthStatus(): Observable<boolean> {
-    return this.authStatus$.asObservable();
-  }
-
-  private setToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
-  }
-
-  private setUser(user: any): void {
-    localStorage.setItem(this.userKey, JSON.stringify(user));
-  }
-
-  private handleError(operation: string, error: any) {
-    console.error(`${operation} error:`, error);
-    const errorMessage = error?.error?.message || error?.message || 'Une erreur est survenue';
-    return throwError(() => new Error(errorMessage));
+  getRole(): string | null {
+    const user = this.getStoredUser();
+    return user && user.roles.length > 0 ? user.roles[0] : null;
   }
 }

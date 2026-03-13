@@ -7,14 +7,14 @@ INSERT INTO roles (name, permissions) VALUES
 ('OWNER',  'READ,MANAGE_SITE');
 
 -- ============================================================
--- USERS  (password = plain text for demo)
+-- USERS  (password = 'admin123' BCrypt hashed)
 -- ============================================================
 INSERT INTO users (email, password, first_name, last_name, phone, address, created_at, updated_at) VALUES
-('admin@campconnect.tn',   'admin123', 'Admin',   'System',   '+216 71 000 001', 'Tunis, Tunisie',   NOW(), NOW()),
-('mohamed@campconnect.tn', 'pass123',  'Mohamed', 'Ben Ali',  '+216 22 111 222', 'Sousse, Tunisie',  NOW(), NOW()),
-('fatma@campconnect.tn',   'pass123',  'Fatma',   'Gharbi',   '+216 25 333 444', 'Sfax, Tunisie',    NOW(), NOW()),
-('youssef@campconnect.tn', 'pass123',  'Youssef', 'Hamdi',    '+216 98 555 666', 'Bizerte, Tunisie', NOW(), NOW()),
-('leila@campconnect.tn',   'pass123',  'Leila',   'Mansouri', '+216 55 777 888', 'Nabeul, Tunisie',  NOW(), NOW());
+('admin@campconnect.tn',   '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu', 'Admin',   'System',   '+216 71 000 001', 'Tunis, Tunisie',   NOW(), NOW()),
+('mohamed@campconnect.tn', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Mohamed', 'Ben Ali',  '+216 22 111 222', 'Sousse, Tunisie',  NOW(), NOW()),
+('fatma@campconnect.tn',   '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Fatma',   'Gharbi',   '+216 25 333 444', 'Sfax, Tunisie',    NOW(), NOW()),
+('youssef@campconnect.tn', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Youssef', 'Hamdi',    '+216 98 555 666', 'Bizerte, Tunisie', NOW(), NOW()),
+('leila@campconnect.tn',   '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Leila',   'Mansouri', '+216 55 777 888', 'Nabeul, Tunisie',  NOW(), NOW());
 
 -- user_roles  (admin=1, camper=2, owner=3 | users: admin=1, mohamed=2, fatma=3, youssef=4, leila=5)
 INSERT INTO user_roles (user_id, role_id) VALUES

@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,37 +12,40 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   email = '';
   password = '';
   error = '';
   loading = false;
 
-  private apiUrl = `${environment.apiUrl}/users`;
-
-  constructor(private http: HttpClient, private router: Router) {}
-
   onSubmit() {
-    if (!this.email) {
-      this.error = 'Email is required.';
+    if (!this.email || !this.password) {
+      this.error = 'Veuillez remplir tous les champs.';
       return;
     }
+    
     this.loading = true;
     this.error = '';
 
-    // No auth: find user by email from public /api/users, redirect to home
-    this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (users) => {
-        const user = users.find(u => u.email === this.email);
-        if (user) {
-          this.router.navigate(['/frontoffice/home']);
+    this.authService.login({ email: this.email, password: this.password }).subscribe({
+      next: (response) => {
+        this.loading = false;
+        console.log('Login success, redirecting...', response.roles);
+        // Redirect based on role
+        if (response.roles.includes('ADMIN')) {
+          this.router.navigate(['/backoffice/dashboard']);
+        } else if (response.roles.includes('OWNER')) {
+          this.router.navigate(['/backoffice/sites']);
         } else {
-          this.error = 'No account found with this email. Please register first.';
-          this.loading = false;
+          this.router.navigate(['/frontoffice/home']);
         }
       },
-      error: (err: HttpErrorResponse) => {
-        this.error = 'Could not connect to server.';
+      error: (err) => {
         this.loading = false;
+        console.error('Login error:', err);
+        this.error = err.error?.message || 'Email ou mot de passe incorrect.';
       }
     });
   }

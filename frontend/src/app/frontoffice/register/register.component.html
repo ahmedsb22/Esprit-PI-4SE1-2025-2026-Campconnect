@@ -1,32 +1,61 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <div class="card">
+      <div class="card shadow-sm">
         <div class="card-body">
-          <h2 class="card-title text-center mb-4">Register to CampConnect</h2>
-          <form (ngSubmit)="onSubmit(); $event.preventDefault()" #registerForm="ngForm" action="javascript:void(0)">
-            <div class="mb-3">
-              <label for="firstName" class="form-label">First Name</label>
-              <input type="text" class="form-control" id="firstName" [(ngModel)]="firstName" name="firstName" required>
+          <h2 class="card-title text-center mb-4">Rejoindre CampConnect</h2>
+          <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firstName" class="form-label">Prénom *</label>
+                <input type="text" class="form-control" id="firstName" [(ngModel)]="firstName" name="firstName" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="lastName" class="form-label">Nom *</label>
+                <input type="text" class="form-control" id="lastName" [(ngModel)]="lastName" name="lastName" required>
+              </div>
             </div>
+
             <div class="mb-3">
-              <label for="lastName" class="form-label">Last Name</label>
-              <input type="text" class="form-control" id="lastName" [(ngModel)]="lastName" name="lastName" required>
-            </div>
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">Email *</label>
               <input type="email" class="form-control" id="email" [(ngModel)]="email" name="email" required>
             </div>
+
             <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
+              <label for="password" class="form-label">Mot de passe *</label>
               <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password" required>
             </div>
+
+            <div class="mb-3">
+              <label for="phone" class="form-label">Téléphone</label>
+              <input type="text" class="form-control" id="phone" [(ngModel)]="phone" name="phone">
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Adresse</label>
+              <textarea class="form-control" id="address" [(ngModel)]="address" name="address" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label d-block">Je suis un :</label>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="role" id="roleCamper" value="CAMPER" [(ngModel)]="role">
+                <label class="form-check-label" for="roleCamper">Campeur</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="role" id="roleOwner" value="OWNER" [(ngModel)]="role">
+                <label class="form-check-label" for="roleOwner">Propriétaire de camping</label>
+              </div>
+            </div>
+
             <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-            <button type="button" class="btn btn-primary w-100" [disabled]="loading" (click)="onSubmit()">
-              {{ loading ? 'Registering...' : 'Register' }}
+
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+              {{ loading ? 'Inscription en cours...' : 'S\'inscrire' }}
             </button>
+
             <div class="text-center mt-3">
-              <p>Already have an account? <a routerLink="/frontoffice/login">Login here</a></p>
+              <p>Déjà un compte ? <a routerLink="/frontoffice/login">Se connecter</a></p>
             </div>
           </form>
         </div>

@@ -1,0 +1,65 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h3 class="card-title mb-0">Mon Profil</h3>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+
+          <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+          <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+          <form *ngIf="user && !loading" (ngSubmit)="onSubmit()">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="firstName" class="form-label">Prénom</label>
+                <input type="text" class="form-control" id="firstName" [(ngModel)]="user.firstName" name="firstName" required>
+              </div>
+              <div class="col-md-6">
+                <label for="lastName" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="lastName" [(ngModel)]="user.lastName" name="lastName" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email (non modifiable)</label>
+              <input type="email" class="form-control" id="email" [value]="user.email" disabled>
+            </div>
+
+            <div class="mb-3">
+              <label for="phone" class="form-label">Téléphone</label>
+              <input type="text" class="form-control" id="phone" [(ngModel)]="user.phone" name="phone">
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Adresse</label>
+              <textarea class="form-control" id="address" [(ngModel)]="user.address" name="address" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="profileImage" class="form-label">URL de l'image de profil</label>
+              <input type="text" class="form-control" id="profileImage" [(ngModel)]="user.profileImage" name="profileImage">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label d-block">Rôles :</label>
+              <span *ngFor="let role of user.roles" class="badge bg-secondary me-1">
+                {{ role.name }}
+              </span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              Enregistrer les modifications
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

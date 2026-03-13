@@ -1,7 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SiteService } from '../../services/site.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -11,6 +12,9 @@ import { SiteService } from '../../services/site.service';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, AfterViewInit {
+  public authService = inject(AuthService);
+  private siteService = inject(SiteService);
+
   sites: any[] = [];
   stats = {
     sites: 50,
@@ -18,8 +22,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     rating: 4.8,
     equipment: 200
   };
-
-  constructor(private siteService: SiteService) {}
 
   ngOnInit() {
     this.loadSites();

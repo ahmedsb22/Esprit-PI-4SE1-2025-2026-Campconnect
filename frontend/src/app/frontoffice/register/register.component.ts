@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -13,40 +12,46 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   firstName = '';
   lastName = '';
   email = '';
   password = '';
+  phone = '';
+  address = '';
+  role = 'CAMPER';
   error = '';
   loading = false;
 
-  private apiUrl = `${environment.apiUrl}/users`;
-
-  constructor(private http: HttpClient, private router: Router) {}
-
   onSubmit() {
-    if (!this.firstName || !this.lastName || !this.email) {
-      this.error = 'First name, last name and email are required.';
+    if (!this.firstName || !this.lastName || !this.email || !this.password) {
+      this.error = 'Veuillez remplir les champs obligatoires.';
       return;
     }
+    
     this.loading = true;
     this.error = '';
 
-    // No auth: POST directly to /api/users
-    const payload = {
+    const registerData = {
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email,
-      password: this.password || null
+      password: this.password,
+      phone: this.phone,
+      address: this.address,
+      roles: [this.role]
     };
 
-    this.http.post<any>(this.apiUrl, payload).subscribe({
+    this.authService.register(registerData).subscribe({
       next: () => {
+        this.loading = false;
         this.router.navigate(['/frontoffice/home']);
       },
-      error: (err: HttpErrorResponse) => {
-        this.error = err.error?.message || 'Registration failed. Email may already be in use.';
+      error: (err) => {
         this.loading = false;
+        this.error = err.error?.message || 'L\'inscription a échoué. L\'email est peut-être déjà utilisé.';
       }
     });
   }

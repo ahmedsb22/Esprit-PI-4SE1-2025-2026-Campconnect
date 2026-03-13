@@ -21,7 +21,7 @@ export interface User {
 export class AdminService {
   private http = inject(HttpClient);
   private apiConfig = inject(ApiConfigService);
-  private apiUrl = this.apiConfig.getEndpointUrl('/admin/users');
+  private apiUrl = this.apiConfig.getEndpointUrl('/users');
 
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl)

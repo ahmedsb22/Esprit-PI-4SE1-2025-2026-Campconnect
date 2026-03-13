@@ -1,25 +1,29 @@
 package tn.esprit.exam.service;
 
+import tn.esprit.exam.dto.auth.*;
 import tn.esprit.exam.entity.User;
 
 import java.util.List;
 
 public interface IAuthService {
 
-    User register(User user);
+    AuthResponse register(RegisterRequest request);
 
-    String login(String email, String rawPassword);
+    AuthResponse login(LoginRequest request);
 
-    User getCurrentUser(String token);
+    User getCurrentUser();
 
     User getUserById(Long id);
 
     List<User> getAllUsers();
 
-    User updateProfile(Long id, User updated);
+    User updateProfile(Long id, UpdateProfileRequest updated);
 
     void changePassword(Long id, String oldPassword, String newPassword);
 
-    void logout(String token);
-}
+    void logout();
 
+    void forgotPassword(String email);
+
+    void resetPassword(String token, String newPassword);
+}
