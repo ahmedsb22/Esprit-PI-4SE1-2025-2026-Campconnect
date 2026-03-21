@@ -1,10 +1,10 @@
 # CampConnect - Plateforme de Réservation de Camping
 
-## 📋 Description
+##  Description
 
 CampConnect est une application web complète de gestion de réservations de sites de camping, développée avec Spring Boot (backend) et Angular (frontend). Le projet inclut la gestion des utilisateurs, des réservations, des équipements, des contrats, des factures, ainsi qu'un système de monitoring et de déploiement avec Docker et Kubernetes.
 
-## 🚀 Technologies Utilisées
+##  Technologies Utilisées
 
 ### Backend
 - **Spring Boot 3.1.6** - Framework Java
@@ -30,7 +30,7 @@ CampConnect est une application web complète de gestion de réservations de sit
 - **Prometheus** - Monitoring
 - **Grafana** - Visualisation des métriques
 
-## 📁 Structure du Projet
+##  Structure du Projet
 
 ```
 campconnect1/
@@ -56,7 +56,7 @@ campconnect1/
 
 ```
 
-## 🏃 Démarrage Rapide
+##  Démarrage Rapide
 
 ### Option 1: Docker Compose (Recommandé)
 
@@ -93,7 +93,7 @@ npm install
 npm start
 ```
 
-## 📚 Documentation
+##  Documentation
 
 Consultez les fichiers d'explication détaillés:
 
@@ -106,7 +106,7 @@ Consultez les fichiers d'explication détaillés:
 - **[EXPLICATION_SPRING_SECURITY.txt](EXPLICATION_SPRING_SECURITY.txt)** - Sécurité complète
 - **[GUIDE_DEMARRAGE_RAPIDE.txt](GUIDE_DEMARRAGE_RAPIDE.txt)** - Guide de démarrage
 
-## 🔐 Sécurité
+##  Sécurité
 
 - **Spring Security** avec JWT
 - **CORS** configuré pour Angular
@@ -115,7 +115,7 @@ Consultez les fichiers d'explication détaillés:
 
 **Note:** Pour la démonstration, toutes les routes API sont publiques. En production, activer les règles de sécurité dans `SecurityConfig.java`.
 
-## 🧪 Tests
+##  Tests
 
 ### Backend
 ```bash
@@ -128,7 +128,7 @@ cd frontend
 npm test
 ```
 
-## 🐳 Docker
+##  Docker
 
 ### Build des images
 ```bash
@@ -140,7 +140,7 @@ cd frontend
 docker build -t campconnect-frontend:latest .
 ```
 
-## ☸️ Kubernetes
+##  Kubernetes
 
 ### Déploiement
 ```bash
@@ -161,7 +161,7 @@ kubectl apply -f k8s/prometheus-deployment.yaml
 kubectl apply -f k8s/grafana-deployment.yaml
 ```
 
-## 📊 Monitoring
+##  Monitoring
 
 - **Prometheus**: Collecte des métriques depuis Spring Boot Actuator
 - **Grafana**: Visualisation des métriques avec dashboards
@@ -173,7 +173,7 @@ Métriques disponibles:
 - Threads
 - Connexions base de données
 
-## 🔄 CI/CD
+##  CI/CD
 
 Pipelines GitHub Actions:
 - **Backend CI/CD**: Build, tests, scan sécurité, build Docker, push
@@ -181,14 +181,14 @@ Pipelines GitHub Actions:
 
 Déclenchement automatique sur push/PR vers `main` ou `develop`.
 
-## 👥 Rôles Utilisateurs
+##  Rôles Utilisateurs
 
 - **ADMIN**: Accès complet, gestion des utilisateurs
 - **OWNER**: Gestion de ses sites de camping
 - **CAMPER**: Réservation de sites
 - **PROVIDER**: Location d'équipements
 
-## 📝 API Documentation
+##  API Documentation
 
 Swagger UI disponible à: http://localhost:8089/swagger-ui.html
 
@@ -213,10 +213,7 @@ Variables d'environnement:
 
 Ce projet est développé dans le cadre d'un examen académique.
 
-## 👨‍💻 Auteurs
-
-Équipe de développement CampConnect
 
 ---
 
-**Note:** Ce projet est fonctionnel et prêt pour la démonstration. Consultez les fichiers d'explication pour plus de détails sur chaque composant.
+
