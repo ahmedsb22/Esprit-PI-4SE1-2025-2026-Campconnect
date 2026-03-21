@@ -1,4 +1,5 @@
 Description
+
 CampConnect est une application web complète de gestion de réservations de sites de camping, développée avec Spring Boot (backend) et Angular (frontend). Le projet inclut la gestion des utilisateurs, des réservations, des équipements, des contrats, des factures, ainsi qu'un système de monitoring et de déploiement avec Docker et Kubernetes.
 
 Technologies Utilisées
