@@ -18,6 +18,11 @@ export const BACKOFFICE_ROUTES: Routes = [
     loadComponent: () => import('./sites/sites.component').then(m => m.SitesComponent)
   },
   {
+    path: 'equipment',
+    canActivate: [roleGuard(['ADMIN', 'OWNER'])],
+    loadComponent: () => import('./equipment/equipment.component').then(m => m.EquipmentComponent)
+  },
+  {
     path: 'orders',
     canActivate: [roleGuard(['ADMIN', 'OWNER'])],
     loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent)

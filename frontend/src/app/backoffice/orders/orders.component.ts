@@ -100,6 +100,16 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     }
   }
 
+  deleteOrder(id: number) {
+    if (!id) return;
+    if (confirm('Supprimer cette commande ?')) {
+      this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+        next: () => this.loadOrders(),
+        error: (err) => console.error('Failed to delete order', err)
+      });
+    }
+  }
+
   refreshStats() {
     this.stats.pending = this.orders.filter(o => o.status === 'active').length;
     this.stats.processing = 0;

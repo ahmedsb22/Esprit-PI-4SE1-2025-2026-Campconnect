@@ -46,19 +46,26 @@ public class SecurityConfig {
                         // Permettre explicitement les requêtes OPTIONS pour CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         
-                        // Routes publiques d'authentification (PLUS LARGE)
+                        // Routes publiques d'authentification
                         .requestMatchers("/api/auth/**").permitAll()
                         
                         // Ressources statiques et documentation (accès public)
                         .requestMatchers(HttpMethod.GET, "/api/sites/**", "/api/equipment/**", "/api/camping-sites/**").permitAll()
                         .requestMatchers("/api-docs", "/api-docs/**", "/v2/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
                         
-                        // Routes protégées par rôle
-                        .requestMatchers("/api/admin/**", "/api/users/**", "/api/users").hasRole("ADMIN")
-                        .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "OWNER")
+                        // Actuator endpoints (pour monitoring)
+                        .requestMatchers("/actuator/**").permitAll()
                         
-                        // Tout le reste nécessite une authentification
-                        .anyRequest().authenticated()
+                        // PERMETTRE L'ACCÈS AU BACKOFFICE SANS AUTHENTIFICATION (pour développement/démo)
+                        // Toutes les routes API nécessaires pour le backoffice sont publiques
+                        .requestMatchers("/api/**").permitAll()
+                        
+                        // Routes protégées par rôle (si besoin d'activer plus tard)
+                        // .requestMatchers("/api/admin/**", "/api/users/**", "/api/users").hasRole("ADMIN")
+                        // .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "OWNER")
+                        
+                        // Tout le reste est public pour le moment
+                        .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {

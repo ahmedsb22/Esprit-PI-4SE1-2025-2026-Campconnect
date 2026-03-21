@@ -75,6 +75,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public Map<String, Object> update(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
@@ -84,6 +85,35 @@ public class UserController {
         if (payload.containsKey("email")) user.setEmail((String) payload.get("email"));
         if (payload.containsKey("phone")) user.setPhone((String) payload.get("phone"));
         if (payload.containsKey("address")) user.setAddress((String) payload.get("address"));
+        
+        // Handle role update
+        if (payload.containsKey("roles") && payload.get("roles") instanceof List) {
+            List<?> roleList = (List<?>) payload.get("roles");
+            if (!roleList.isEmpty()) {
+                String roleName = roleList.get(0).toString();
+                try {
+                    RoleName rn = RoleName.valueOf(roleName.toUpperCase());
+                    Role role = roleRepository.findByName(rn)
+                            .orElseGet(() -> roleRepository.save(Role.builder().name(rn).build()));
+                    user.getRoles().clear();
+                    user.getRoles().add(role);
+                } catch (Exception e) {
+                    // Ignore invalid role
+                }
+            }
+        } else if (payload.containsKey("role")) {
+            String roleName = (String) payload.get("role");
+            try {
+                RoleName rn = RoleName.valueOf(roleName.toUpperCase());
+                Role role = roleRepository.findByName(rn)
+                        .orElseGet(() -> roleRepository.save(Role.builder().name(rn).build()));
+                user.getRoles().clear();
+                user.getRoles().add(role);
+            } catch (Exception e) {
+                // Ignore invalid role
+            }
+        }
+        
         user.setUpdatedAt(Instant.now());
 
         return toMap(userRepository.save(user));

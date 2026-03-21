@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-scripts
+data:
+  01-schema.sql: |
+    -- Schema SQL sera chargé depuis le ConfigMap ou un volume
+    -- Vous pouvez copier le contenu de schema.sql ici
+  02-data.sql: |
+    -- Data SQL sera chargé depuis le ConfigMap ou un volume
+    -- Vous pouvez copier le contenu de data.sql ici

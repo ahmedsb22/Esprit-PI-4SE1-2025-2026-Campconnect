@@ -81,10 +81,10 @@ export class BillingComponent implements OnInit, AfterViewInit {
   }
 
   deleteInvoice(invoiceId: string) {
-    const id = this.findInvoiceId(invoiceId);
-    if (!id) return;
+    const invoice = this.invoices.find(i => i.invoiceId === invoiceId);
+    if (!invoice) return;
     if (confirm(`Delete invoice ${invoiceId}?`)) {
-      this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+      this.http.delete(`${this.apiUrl}/${invoice.id}`).subscribe({
         next: () => this.loadInvoices(),
         error: (err) => console.error('Failed to delete invoice', err)
       });
@@ -93,26 +93,28 @@ export class BillingComponent implements OnInit, AfterViewInit {
 
   createInvoice() {
     if (!this.invoiceForm.bookingId && !this.invoiceForm.orderId) {
-      alert('Provide booking ID or order ID');
+      alert('Veuillez fournir un ID de réservation ou de commande');
       return;
     }
-    const bookingId = this.invoiceForm.bookingId ? Number(this.invoiceForm.bookingId) : null;
-    const orderId = this.invoiceForm.orderId ? Number(this.invoiceForm.orderId) : null;
-    if (bookingId !== null && Number.isNaN(bookingId)) { alert('Booking ID must be a number'); return; }
-    if (orderId !== null && Number.isNaN(orderId)) { alert('Order ID must be a number'); return; }
-    const payload: any = {
-      invoiceNumber: `INV-${Date.now()}`,
-      status: 'DRAFT',
-      totalAmount: 0
-    };
-    if (bookingId) payload.reservation = { id: bookingId };
-    if (orderId) payload.equipmentOrder = { id: orderId };
+    const payload: any = {};
+    if (this.invoiceForm.bookingId) payload.reservationId = this.invoiceForm.bookingId;
+    if (this.invoiceForm.orderId) payload.equipmentOrderId = this.invoiceForm.orderId;
+
     this.http.post(this.apiUrl, payload).subscribe({
       next: () => {
+        // Hide modal
+        const modalElement = document.getElementById('createInvoiceModal');
+        if (modalElement && (window as any).bootstrap) {
+          const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+          if (modal) modal.hide();
+        }
         this.invoiceForm = { bookingId: '', orderId: '' };
         this.loadInvoices();
       },
-      error: (err) => console.error('Failed to create invoice', err)
+      error: (err) => {
+        console.error('Failed to create invoice', err);
+        alert(err.error?.message || 'Failed to create invoice');
+      }
     });
   }
 

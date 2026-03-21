@@ -10,6 +10,7 @@
     <hr class="sidebar-divider">
     <div class="sidebar-heading">Management</div>
     <li class="nav-item"><a class="nav-link" routerLink="/backoffice/sites"><i class="fas fa-fw fa-map-marked-alt"></i><span>Site Validations</span></a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="/backoffice/equipment"><i class="fas fa-fw fa-toolbox"></i><span>Equipment Catalog</span></a></li>
     <li class="nav-item active"><a class="nav-link" routerLink="/backoffice/bookings"><i class="fas fa-fw fa-calendar-check"></i><span>Bookings</span></a></li>
     <li class="nav-item"><a class="nav-link" routerLink="/backoffice/orders"><i class="fas fa-fw fa-shopping-cart"></i><span>Order Management</span></a></li>
     <li class="nav-item"><a class="nav-link" routerLink="/backoffice/contracts"><i class="fas fa-fw fa-file-contract"></i><span>Contracts</span></a></li>
@@ -153,17 +154,31 @@
 <div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
   <div class="modal-box" (click)="$event.stopPropagation()">
     <h5 class="font-weight-bold mb-3">{{ editMode ? 'Edit Booking' : 'New Booking' }}</h5>
-    <div class="form-group">
-      <label>Check-In Date</label>
-      <input type="date" class="form-control" [(ngModel)]="form.checkInDate">
+    <div class="form-group" *ngIf="!editMode">
+      <label>Camping Site *</label>
+      <select class="form-control" [(ngModel)]="form.campingSiteId" required>
+        <option [value]="null">Sélectionner un site</option>
+        <option *ngFor="let site of availableSites" [value]="site.id">{{ site.name }}</option>
+      </select>
+    </div>
+    <div class="form-group" *ngIf="!editMode">
+      <label>Camper (User)</label>
+      <select class="form-control" [(ngModel)]="form.camperId">
+        <option [value]="null">Sélectionner un utilisateur (optionnel)</option>
+        <option *ngFor="let user of availableUsers" [value]="user.id">{{ user.name }}</option>
+      </select>
     </div>
     <div class="form-group">
-      <label>Check-Out Date</label>
-      <input type="date" class="form-control" [(ngModel)]="form.checkOutDate">
+      <label>Check-In Date *</label>
+      <input type="date" class="form-control" [(ngModel)]="form.checkInDate" required>
     </div>
     <div class="form-group">
-      <label>Number of Guests</label>
-      <input type="number" class="form-control" [(ngModel)]="form.numberOfGuests" min="1">
+      <label>Check-Out Date *</label>
+      <input type="date" class="form-control" [(ngModel)]="form.checkOutDate" required>
+    </div>
+    <div class="form-group">
+      <label>Number of Guests *</label>
+      <input type="number" class="form-control" [(ngModel)]="form.numberOfGuests" min="1" required>
     </div>
     <div class="form-group">
       <label>Status</label>

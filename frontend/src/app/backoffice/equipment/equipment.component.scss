@@ -1,0 +1,35 @@
+.card {
+  border-radius: 0.5rem;
+  border: none;
+}
+.table-responsive {
+  margin-top: 1rem;
+  overflow-x: auto; /* Ensures the table scrolls on small screens */
+  -webkit-overflow-scrolling: touch;
+}
+.action-btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.25rem; /* Better spacing for wrapped buttons on mobile */
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Sidebar toggle logic for mobile (SB Admin 2 standard) */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0 !important;
+    overflow: hidden;
+    &.toggled {
+      width: 6.5rem !important;
+    }
+  }
+}
+@media (max-width: 576px) {
+  .card-header h6 {
+    font-size: 0.9rem;
+  }
+  .table th, .table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}

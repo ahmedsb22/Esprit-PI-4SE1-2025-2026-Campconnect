@@ -80,34 +80,57 @@ export class ContractsComponent implements OnInit, AfterViewInit {
   renewContract(id: number) {
     const contract = this.contracts.find(c => c.id === id);
     if (!contract) return;
-    this.http.put(`${this.apiUrl}/${id}`, { ...contract, status: 'SIGNED' }).subscribe({
-      next: () => this.loadContracts(),
-      error: (err) => console.error('Failed to renew contract', err)
+    if (!confirm('Renouveler ce contrat ?')) return;
+    
+    this.http.put(`${this.apiUrl}/${id}`, { 
+      status: 'SIGNED',
+      isSigned: true
+    }).subscribe({
+      next: () => {
+        alert('Contrat renouvelé avec succès !');
+        this.loadContracts();
+      },
+      error: (err) => {
+        console.error('Failed to renew contract', err);
+        alert('Erreur lors du renouvellement: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+  
+  deleteContract(id: number) {
+    if (!confirm('Supprimer ce contrat ?')) return;
+    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+      next: () => {
+        alert('Contrat supprimé.');
+        this.loadContracts();
+      },
+      error: (err) => console.error('Failed to delete contract', err)
     });
   }
 
   createContract() {
     if (!this.contractForm.bookingId) {
-      alert('Booking ID is required');
+      alert('Please provide a booking ID');
       return;
     }
-    const bookingId = Number(this.contractForm.bookingId);
-    if (Number.isNaN(bookingId)) {
-      alert('Booking ID must be a number');
-      return;
-    }
-    const payload = {
-      contractNumber: `CNT-${Date.now()}`,
-      terms: 'Standard camping contract terms.',
-      status: 'DRAFT',
-      reservation: { id: bookingId }
-    };
-    this.http.post(this.apiUrl, payload).subscribe({
+    this.http.post(this.apiUrl, { 
+      reservationId: this.contractForm.bookingId,
+      terms: 'Standard camping contract terms and conditions.'
+    }).subscribe({ 
       next: () => {
-        this.contractForm.bookingId = '';
+        // Hide modal
+        const modalElement = document.getElementById('createContractModal');
+        if (modalElement && (window as any).bootstrap) {
+          const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+          if (modal) modal.hide();
+        }
+        this.contractForm = { bookingId: '' };
         this.loadContracts();
       },
-      error: (err) => console.error('Failed to create contract', err)
+      error: (err) => {
+        console.error('Failed to create contract', err);
+        alert(err.error?.message || 'Failed to create contract');
+      }
     });
   }
 

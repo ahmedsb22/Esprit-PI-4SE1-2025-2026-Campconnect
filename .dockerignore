@@ -1,0 +1,15 @@
+target/
+node_modules/
+.git/
+.gitignore
+*.md
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.iml
+frontend/dist/
+frontend/node_modules/
+*.class
+*.jar
+!target/*.jar

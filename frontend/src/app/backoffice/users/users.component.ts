@@ -27,6 +27,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
     role: 'CAMPER'
   };
 
+  editingUser: any = null;
+
   private apiUrl = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
@@ -112,6 +114,57 @@ export class UsersComponent implements OnInit, AfterViewInit {
         error: (err) => console.error('Failed to delete user', err)
       });
     }
+  }
+
+  editUser(user: any) {
+    // We need to fetch the full user details because the table object is simplified
+    this.http.get<any>(`${this.apiUrl}/${user.id}`).subscribe({
+      next: (fullUser) => {
+        this.editingUser = {
+          id: fullUser.id,
+          firstName: fullUser.firstName,
+          lastName: fullUser.lastName,
+          email: fullUser.email,
+          role: (fullUser.roles && fullUser.roles.length > 0) ? fullUser.roles[0] : 'CAMPER'
+        };
+        // Show modal - assuming bootstrap is available globally
+        const modalElement = document.getElementById('editUserModal');
+        if (modalElement && (window as any).bootstrap) {
+          const modal = new (window as any).bootstrap.Modal(modalElement);
+          modal.show();
+        }
+      },
+      error: (err) => console.error('Failed to load user details', err)
+    });
+  }
+
+  updateUser() {
+    if (!this.editingUser.firstName || !this.editingUser.lastName || !this.editingUser.email) {
+      alert('Please fill all required fields');
+      return;
+    }
+    const payload = {
+      email: this.editingUser.email,
+      firstName: this.editingUser.firstName,
+      lastName: this.editingUser.lastName,
+      roles: [this.editingUser.role]
+    };
+    this.http.put(`${this.apiUrl}/${this.editingUser.id}`, payload).subscribe({
+      next: () => {
+        // Hide modal
+        const modalElement = document.getElementById('editUserModal');
+        if (modalElement && (window as any).bootstrap) {
+          const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+          if (modal) modal.hide();
+        }
+        this.editingUser = null;
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error('Failed to update user', err);
+        alert(err.error?.message || 'Failed to update user');
+      }
+    });
   }
 
   applyFilters() {

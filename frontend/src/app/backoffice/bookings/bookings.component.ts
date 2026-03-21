@@ -26,12 +26,17 @@ export class BookingsComponent implements OnInit {
   selectedId: number | null = null;
 
   form = {
+    campingSiteId: null as number | null,
+    camperId: null as number | null,
     checkInDate: '',
     checkOutDate: '',
     numberOfGuests: 1,
     status: 'PENDING',
     specialRequests: ''
   };
+  
+  availableSites: any[] = [];
+  availableUsers: any[] = [];
 
   statusOptions = ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCELLED', 'COMPLETED'];
 
@@ -41,6 +46,29 @@ export class BookingsComponent implements OnInit {
 
   ngOnInit() {
     this.loadBookings();
+    this.loadAvailableSites();
+    this.loadAvailableUsers();
+  }
+  
+  loadAvailableSites() {
+    this.http.get<any[]>(`${environment.apiUrl}/sites`).subscribe({
+      next: (sites) => {
+        this.availableSites = sites.map(s => ({ id: s.id, name: s.name }));
+      },
+      error: (err) => console.error('Failed to load sites', err)
+    });
+  }
+  
+  loadAvailableUsers() {
+    this.http.get<any[]>(`${environment.apiUrl}/users`).subscribe({
+      next: (users) => {
+        this.availableUsers = users.map(u => ({ 
+          id: u.id, 
+          name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email 
+        }));
+      },
+      error: (err) => console.error('Failed to load users', err)
+    });
   }
 
   loadBookings() {
@@ -53,8 +81,10 @@ export class BookingsComponent implements OnInit {
           reservationNumber: b.reservationNumber ?? `RES-${b.id}`,
           camper: (b.camperName ?? (b.camper ? (`${b.camper.firstName ?? ''} ${b.camper.lastName ?? ''}`).trim() : 'Anonymous')) || 'Anonymous',
           camperEmail: b.camperEmail ?? '',
+          camperId: b.camperId,
           siteName: b.campingSiteName ?? b.campingSite?.name ?? 'N/A',
           siteLocation: b.campingSiteLocation ?? b.campingSite?.location ?? '',
+          campingSiteId: b.campingSiteId,
           checkInDate: b.checkInDate ?? '-',
           checkOutDate: b.checkOutDate ?? '-',
           numberOfGuests: b.numberOfGuests ?? 1,
@@ -69,6 +99,7 @@ export class BookingsComponent implements OnInit {
         this.error = 'Failed to load bookings.';
         this.loading = false;
         console.error(err);
+        alert('Erreur lors du chargement des réservations: ' + (err.error?.message || err.message));
       }
     });
   }
@@ -92,7 +123,15 @@ export class BookingsComponent implements OnInit {
   openCreate() {
     this.editMode = false;
     this.selectedId = null;
-    this.form = { checkInDate: '', checkOutDate: '', numberOfGuests: 1, status: 'PENDING', specialRequests: '' };
+    this.form = { 
+      campingSiteId: null,
+      camperId: null,
+      checkInDate: '', 
+      checkOutDate: '', 
+      numberOfGuests: 1, 
+      status: 'PENDING', 
+      specialRequests: '' 
+    };
     this.showForm = true;
   }
 
@@ -100,6 +139,8 @@ export class BookingsComponent implements OnInit {
     this.editMode = true;
     this.selectedId = b.id;
     this.form = {
+      campingSiteId: b.campingSiteId || null,
+      camperId: b.camperId || null,
       checkInDate: b.checkInDate,
       checkOutDate: b.checkOutDate,
       numberOfGuests: b.numberOfGuests,
@@ -110,32 +151,85 @@ export class BookingsComponent implements OnInit {
   }
 
   saveBooking() {
-    const payload: any = { ...this.form };
+    // Validation
+    if (!this.form.checkInDate || !this.form.checkOutDate) {
+      alert('Les dates de check-in et check-out sont obligatoires');
+      return;
+    }
+    if (this.form.numberOfGuests < 1) {
+      alert('Le nombre de personnes doit être au moins 1');
+      return;
+    }
+    if (!this.editMode && !this.form.campingSiteId) {
+      alert('Veuillez sélectionner un site de camping');
+      return;
+    }
+    
+    const payload: any = {
+      checkInDate: this.form.checkInDate,
+      checkOutDate: this.form.checkOutDate,
+      numberOfGuests: this.form.numberOfGuests,
+      status: this.form.status,
+      specialRequests: this.form.specialRequests || ''
+    };
+    
+    // Pour la création, ajouter campingSiteId et camperId
+    if (!this.editMode) {
+      payload.campingSiteId = this.form.campingSiteId;
+      payload.camperId = this.form.camperId || 1; // Par défaut si non spécifié
+    }
+    
     if (this.editMode && this.selectedId) {
       this.http.put(`${this.apiUrl}/${this.selectedId}`, payload).subscribe({
-        next: () => { this.showForm = false; this.loadBookings(); },
-        error: (err) => { alert('Update failed: ' + (err.error?.message ?? err.message)); }
+        next: () => { 
+          alert('Réservation mise à jour avec succès !');
+          this.showForm = false; 
+          this.loadBookings(); 
+        },
+        error: (err) => { 
+          console.error('Update error:', err);
+          alert('Erreur lors de la mise à jour: ' + (err.error?.message ?? err.message)); 
+        }
       });
     } else {
       this.http.post(this.apiUrl, payload).subscribe({
-        next: () => { this.showForm = false; this.loadBookings(); },
-        error: (err) => { alert('Create failed: ' + (err.error?.message ?? err.message)); }
+        next: () => { 
+          alert('Réservation créée avec succès !');
+          this.showForm = false; 
+          this.loadBookings(); 
+        },
+        error: (err) => { 
+          console.error('Create error:', err);
+          alert('Erreur lors de la création: ' + (err.error?.message ?? err.message)); 
+        }
       });
     }
   }
 
   updateStatus(id: number, status: string) {
     this.http.put(`${this.apiUrl}/${id}/status`, null, { params: { status } }).subscribe({
-      next: () => this.loadBookings(),
-      error: (err) => alert('Status update failed: ' + (err.error?.message ?? err.message))
+      next: () => {
+        alert('Statut mis à jour avec succès !');
+        this.loadBookings();
+      },
+      error: (err) => {
+        console.error('Status update error:', err);
+        alert('Erreur lors de la mise à jour du statut: ' + (err.error?.message ?? err.message));
+      }
     });
   }
 
   deleteBooking(id: number) {
-    if (!confirm('Delete this booking?')) return;
+    if (!confirm('Supprimer cette réservation ?')) return;
     this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-      next: () => this.loadBookings(),
-      error: (err) => alert('Delete failed: ' + (err.error?.message ?? err.message))
+      next: () => {
+        alert('Réservation supprimée avec succès !');
+        this.loadBookings();
+      },
+      error: (err) => {
+        console.error('Delete error:', err);
+        alert('Erreur lors de la suppression: ' + (err.error?.message ?? err.message));
+      }
     });
   }
 
