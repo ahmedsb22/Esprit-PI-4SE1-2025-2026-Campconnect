@@ -26,7 +26,7 @@ Technologies Utilisées
 - **Prometheus** - Monitoring
 - **Grafana** - Visualisation des métriques
 Structure du Projet
-
+```
 campconnect1/
 ├── src/main/java/tn/esprit/exam/
 │   ├── controller/      # Contrôleurs REST
@@ -47,3 +47,4 @@ campconnect1/
 ├── monitoring/          # Configurations Prometheus/Grafana
 ├── .github/workflows/   # Pipelines CI/CD
 └── docker-compose.yml   # Orchestration Docker
+```
