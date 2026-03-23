@@ -1,8 +1,16 @@
 package tn.esprit.exam.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.exam.dto.UserDTO;
 import tn.esprit.exam.entity.Role;
 import tn.esprit.exam.entity.RoleName;
 import tn.esprit.exam.entity.User;
@@ -11,13 +19,15 @@ import tn.esprit.exam.repository.RoleRepository;
 import tn.esprit.exam.repository.UserRepository;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(
+    name = "Users",
+    description = "Gestion des utilisateurs - CRUD et gestion des rôles"
+)
 @RequiredArgsConstructor
 public class UserController {
 
@@ -25,39 +35,62 @@ public class UserController {
     private final RoleRepository roleRepository;
 
     @GetMapping
-    public List<Map<String, Object>> getAll() {
+    @Operation(
+        summary = "Récupérer tous les utilisateurs",
+        description = "Retourne la liste complète de tous les utilisateurs du système"
+    )
+    @ApiResponse(responseCode = "200", description = "Liste des utilisateurs")
+    public List<UserDTO> getAll() {
         return userRepository.findAll().stream()
-                .map(this::toMap)
+                .map(UserDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Map<String, Object> getById(@PathVariable Long id) {
+    @Operation(
+        summary = "Récupérer un utilisateur par ID",
+        description = "Retourne les détails complets d'un utilisateur spécifique"
+    )
+    @ApiResponse(responseCode = "200", description = "Utilisateur trouvé")
+    @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    public UserDTO getById(
+            @PathVariable
+            @Parameter(description = "ID de l'utilisateur", example = "1")
+            Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
-        return toMap(user);
+        return UserDTO.fromEntity(user);
     }
 
     @PostMapping
-    public Map<String, Object> create(@RequestBody Map<String, Object> payload) {
-        String email = (String) payload.get("email");
+    @Operation(
+        summary = "Créer un nouvel utilisateur",
+        description = "Crée un nouvel utilisateur dans le système avec les informations fournies"
+    )
+    @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès")
+    @ApiResponse(responseCode = "400", description = "Données invalides (email requis ou déjà existant)")
+    public UserDTO create(
+            @RequestBody
+            UserDTO userDTO) {
+        String email = userDTO.getEmail();
         if (email == null || email.isBlank()) throw new BusinessLogicException("Email is required");
         if (userRepository.existsByEmail(email)) throw new BusinessLogicException("Email already exists");
 
         User user = new User();
         user.setEmail(email);
-        user.setPassword((String) payload.getOrDefault("password", "password123"));
-        user.setFirstName((String) payload.getOrDefault("firstName", ""));
-        user.setLastName((String) payload.getOrDefault("lastName", ""));
-        user.setPhone((String) payload.getOrDefault("phone", ""));
-        user.setAddress((String) payload.getOrDefault("address", ""));
+        user.setPassword(userDTO.getPassword() != null ? userDTO.getPassword() : "password123");
+        user.setFirstName(userDTO.getFirstName() != null ? userDTO.getFirstName() : "");
+        user.setLastName(userDTO.getLastName() != null ? userDTO.getLastName() : "");
+        user.setPhone(userDTO.getPhone() != null ? userDTO.getPhone() : "");
+        user.setAddress(userDTO.getAddress() != null ? userDTO.getAddress() : "");
         user.setCreatedAt(Instant.now());
         user.setUpdatedAt(Instant.now());
 
         // Assign role
-        String roleName = payload.containsKey("roles") && payload.get("roles") instanceof List
-                ? ((List<?>) payload.get("roles")).isEmpty() ? "CAMPER" : ((List<?>) payload.get("roles")).get(0).toString()
-                : (String) payload.getOrDefault("role", "CAMPER");
+        String roleName = userDTO.getRole() != null ? userDTO.getRole() : "CAMPER";
+        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+            roleName = userDTO.getRoles().get(0);
+        }
 
         try {
             RoleName rn = RoleName.valueOf(roleName.toUpperCase());
@@ -71,38 +104,46 @@ public class UserController {
         }
 
         User saved = userRepository.save(user);
-        return toMap(saved);
+        return UserDTO.fromEntity(saved);
     }
 
     @PutMapping("/{id}")
+    @Operation(
+        summary = "Mettre à jour un utilisateur",
+        description = "Met à jour les informations d'un utilisateur existant (profil et rôles)"
+    )
+    @ApiResponse(responseCode = "200", description = "Utilisateur mis à jour")
+    @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     @Transactional
-    public Map<String, Object> update(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+    public UserDTO update(
+            @PathVariable
+            @Parameter(description = "ID de l'utilisateur à mettre à jour", example = "1")
+            Long id,
+            @RequestBody
+            UserDTO userDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
 
-        if (payload.containsKey("firstName")) user.setFirstName((String) payload.get("firstName"));
-        if (payload.containsKey("lastName")) user.setLastName((String) payload.get("lastName"));
-        if (payload.containsKey("email")) user.setEmail((String) payload.get("email"));
-        if (payload.containsKey("phone")) user.setPhone((String) payload.get("phone"));
-        if (payload.containsKey("address")) user.setAddress((String) payload.get("address"));
+        if (userDTO.getFirstName() != null) user.setFirstName(userDTO.getFirstName());
+        if (userDTO.getLastName() != null) user.setLastName(userDTO.getLastName());
+        if (userDTO.getEmail() != null) user.setEmail(userDTO.getEmail());
+        if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
+        if (userDTO.getAddress() != null) user.setAddress(userDTO.getAddress());
         
         // Handle role update
-        if (payload.containsKey("roles") && payload.get("roles") instanceof List) {
-            List<?> roleList = (List<?>) payload.get("roles");
-            if (!roleList.isEmpty()) {
-                String roleName = roleList.get(0).toString();
-                try {
-                    RoleName rn = RoleName.valueOf(roleName.toUpperCase());
-                    Role role = roleRepository.findByName(rn)
-                            .orElseGet(() -> roleRepository.save(Role.builder().name(rn).build()));
-                    user.getRoles().clear();
-                    user.getRoles().add(role);
-                } catch (Exception e) {
-                    // Ignore invalid role
-                }
+        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+            String roleName = userDTO.getRoles().get(0);
+            try {
+                RoleName rn = RoleName.valueOf(roleName.toUpperCase());
+                Role role = roleRepository.findByName(rn)
+                        .orElseGet(() -> roleRepository.save(Role.builder().name(rn).build()));
+                user.getRoles().clear();
+                user.getRoles().add(role);
+            } catch (Exception e) {
+                // Ignore invalid role
             }
-        } else if (payload.containsKey("role")) {
-            String roleName = (String) payload.get("role");
+        } else if (userDTO.getRole() != null) {
+            String roleName = userDTO.getRole();
             try {
                 RoleName rn = RoleName.valueOf(roleName.toUpperCase());
                 Role role = roleRepository.findByName(rn)
@@ -116,44 +157,43 @@ public class UserController {
         
         user.setUpdatedAt(Instant.now());
 
-        return toMap(userRepository.save(user));
+        return UserDTO.fromEntity(userRepository.save(user));
     }
 
     @PutMapping("/{id}/status")
-    public Map<String, Object> updateStatus(@PathVariable Long id, @RequestParam boolean active) {
+    @Operation(
+        summary = "Changer le statut d'un utilisateur",
+        description = "Active ou désactive un utilisateur"
+    )
+    @ApiResponse(responseCode = "200", description = "Statut mis à jour")
+    @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    public UserDTO updateStatus(
+            @PathVariable
+            @Parameter(description = "ID de l'utilisateur", example = "1")
+            Long id,
+            @RequestParam
+            @Parameter(description = "Nouvel état d'activation (true/false)", example = "true")
+            boolean active) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
         user.setUpdatedAt(Instant.now());
-        return toMap(userRepository.save(user));
+        return UserDTO.fromEntity(userRepository.save(user));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) throw new IllegalArgumentException("User not found: " + id);
+    @Operation(
+        summary = "Supprimer un utilisateur",
+        description = "Supprime définitivement un utilisateur du système"
+    )
+    @ApiResponse(responseCode = "204", description = "Utilisateur supprimé")
+    @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Parameter(description = "ID de l'utilisateur à supprimer", example = "1")
+            Long id) {
+        if (!userRepository.existsById(id))
+            throw new IllegalArgumentException("User not found: " + id);
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private Map<String, Object> toMap(User user) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", user.getId());
-        map.put("firstName", user.getFirstName() != null ? user.getFirstName() : "");
-        map.put("lastName", user.getLastName() != null ? user.getLastName() : "");
-        map.put("email", user.getEmail() != null ? user.getEmail() : "");
-        map.put("phone", user.getPhone() != null ? user.getPhone() : "");
-        map.put("address", user.getAddress() != null ? user.getAddress() : "");
-        map.put("profileImageUrl", user.getProfileImage() != null ? user.getProfileImage() : "");
-        map.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : "");
-        map.put("updatedAt", user.getUpdatedAt() != null ? user.getUpdatedAt().toString() : "");
-        map.put("active", true);
-        List<String> roles = user.getRoles() != null
-                ? user.getRoles().stream()
-                    .filter(r -> r.getName() != null)
-                    .map(r -> r.getName().name())
-                    .collect(Collectors.toList())
-                : List.of();
-        map.put("roles", roles);
-        map.put("role", roles.isEmpty() ? "CAMPER" : roles.get(0));
-        return map;
     }
 }

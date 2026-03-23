@@ -1,5 +1,11 @@
 package tn.esprit.exam.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +23,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
+@Tag(
+    name = "Bookings",
+    description = "Gestion complète des réservations (bookings) - création, modification, suivi du statut"
+)
 @RequiredArgsConstructor
 @Slf4j
 public class BookingController {
@@ -28,12 +38,26 @@ public class BookingController {
     private static final DateTimeFormatter FR_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @GetMapping
+    @Operation(
+        summary = "Récupérer toutes les réservations",
+        description = "Retourne la liste complète de toutes les réservations du système"
+    )
+    @ApiResponse(responseCode = "200", description = "Liste des réservations")
     public List<ReservationDTO> getAll() {
         return reservationService.getAllReservations();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
+    @Operation(
+        summary = "Récupérer une réservation par ID",
+        description = "Retourne les détails complets d'une réservation spécifique"
+    )
+    @ApiResponse(responseCode = "200", description = "Réservation trouvée")
+    @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    public ResponseEntity<?> getById(
+            @PathVariable
+            @Parameter(description = "ID unique de la réservation", example = "1")
+            Long id) {
         try {
             ReservationDTO dto = reservationService.getReservationById(id);
             return ResponseEntity.ok(dto);
@@ -46,6 +70,13 @@ public class BookingController {
     }
 
     @PostMapping
+    @Operation(
+        summary = "Créer une nouvelle réservation",
+        description = "Crée une nouvelle réservation pour un camping avec les dates et le nombre de clients"
+    )
+    @ApiResponse(responseCode = "201", description = "Réservation créée avec succès")
+    @ApiResponse(responseCode = "400", description = "Données invalides ou manquantes")
+    @ApiResponse(responseCode = "404", description = "Site ou client non trouvé")
     public ResponseEntity<?> create(@RequestBody Map<String, Object> payload) {
         try {
             log.info("Received booking request: {}", payload);
@@ -158,7 +189,18 @@ public class BookingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+    @Operation(
+        summary = "Mettre à jour une réservation",
+        description = "Modifie les détails d'une réservation existante (dates, nombre d'hôtes, etc.)"
+    )
+    @ApiResponse(responseCode = "200", description = "Réservation mise à jour")
+    @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
+    public ResponseEntity<?> update(
+            @PathVariable
+            @Parameter(description = "ID de la réservation", example = "1")
+            Long id,
+            @RequestBody Map<String, Object> payload) {
         try {
             log.info("Updating reservation {}: {}", id, payload);
 
@@ -214,7 +256,20 @@ public class BookingController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam String status) {
+    @Operation(
+        summary = "Changer le statut d'une réservation",
+        description = "Change le statut d'une réservation (PENDING, CONFIRMED, CANCELLED, COMPLETED, etc.)"
+    )
+    @ApiResponse(responseCode = "200", description = "Statut mis à jour")
+    @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    @ApiResponse(responseCode = "400", description = "Statut invalide")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable
+            @Parameter(description = "ID de la réservation", example = "1")
+            Long id,
+            @RequestParam
+            @Parameter(description = "Nouveau statut (PENDING, CONFIRMED, CANCELLED, COMPLETED)", example = "CONFIRMED")
+            String status) {
         try {
             log.info("Updating status of reservation {} to {}", id, status);
             ReservationStatus newStatus = ReservationStatus.valueOf(status.trim().toUpperCase());
@@ -235,7 +290,17 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @Operation(
+        summary = "Annuler/Supprimer une réservation",
+        description = "Annule ou supprime une réservation existante"
+    )
+    @ApiResponse(responseCode = "204", description = "Réservation annulée avec succès")
+    @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    @ApiResponse(responseCode = "400", description = "Impossible d'annuler cette réservation")
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Parameter(description = "ID de la réservation à annuler", example = "1")
+            Long id) {
         try {
             log.info("Deleting reservation {}", id);
             ReservationDTO dto = reservationService.getReservationById(id);

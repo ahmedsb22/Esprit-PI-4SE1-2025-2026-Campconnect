@@ -1,6 +1,13 @@
 package tn.esprit.exam.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +20,21 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/equipment")
+@Tag(
+    name = "Equipment",
+    description = "Gestion des équipements de camping - catalogue, disponibilité et CRUD"
+)
 @RequiredArgsConstructor
 public class EquipmentController {
 
     private final EquipmentRepository equipmentRepository;
 
     @GetMapping
+    @Operation(
+        summary = "Récupérer tous les équipements",
+        description = "Retourne la liste complète de tous les équipements disponibles"
+    )
+    @ApiResponse(responseCode = "200", description = "Liste des équipements")
     @Transactional(readOnly = true)
     public List<EquipmentDTO> getAll() {
         return equipmentRepository.findAll().stream()
@@ -27,6 +43,11 @@ public class EquipmentController {
     }
 
     @GetMapping("/available")
+    @Operation(
+        summary = "Récupérer les équipements disponibles",
+        description = "Retourne uniquement les équipements actifs avec une quantité disponible > 0"
+    )
+    @ApiResponse(responseCode = "200", description = "Liste des équipements en stock")
     @Transactional(readOnly = true)
     public List<EquipmentDTO> getAvailable() {
         return equipmentRepository.findAll().stream()
@@ -38,12 +59,28 @@ public class EquipmentController {
     }
 
     @GetMapping("/search")
+    @Operation(
+        summary = "Rechercher des équipements avec filtres",
+        description = "Effectue une recherche avancée sur les équipements par nom, catégorie et prix"
+    )
+    @ApiResponse(responseCode = "200", description = "Équipements correspondant aux critères")
     @Transactional(readOnly = true)
     public List<EquipmentDTO> search(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) Double priceMin,
-            @RequestParam(required = false) Double priceMax) {
+            @RequestParam(required = false)
+            @Parameter(description = "Nom de l'équipement (recherche partielle)")
+            String name,
+            
+            @RequestParam(required = false)
+            @Parameter(description = "Catégorie de l'équipement")
+            String category,
+            
+            @RequestParam(required = false)
+            @Parameter(description = "Prix journalier minimum", example = "5.0")
+            Double priceMin,
+            
+            @RequestParam(required = false)
+            @Parameter(description = "Prix journalier maximum", example = "50.0")
+            Double priceMax) {
         return equipmentRepository.findAll().stream()
                 .filter(e -> name == null || (e.getName() != null && e.getName().toLowerCase().contains(name.toLowerCase())))
                 .filter(e -> category == null || (e.getCategory() != null && e.getCategory().equalsIgnoreCase(category)))
@@ -54,8 +91,16 @@ public class EquipmentController {
     }
 
     @GetMapping("/category/{category}")
+    @Operation(
+        summary = "Récupérer les équipements par catégorie",
+        description = "Retourne tous les équipements d'une catégorie spécifique"
+    )
+    @ApiResponse(responseCode = "200", description = "Équipements de la catégorie")
     @Transactional(readOnly = true)
-    public List<EquipmentDTO> getByCategory(@PathVariable String category) {
+    public List<EquipmentDTO> getByCategory(
+            @PathVariable
+            @Parameter(description = "Catégorie (ex: Tent, Sleeping Bag)", example = "Tent")
+            String category) {
         return equipmentRepository.findAll().stream()
                 .filter(e -> category.equalsIgnoreCase(e.getCategory()))
                 .map(EquipmentDTO::fromEntity)  // ← Conversion vers DTO
@@ -63,8 +108,17 @@ public class EquipmentController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+        summary = "Récupérer un équipement par ID",
+        description = "Retourne les détails complets d'un équipement spécifique"
+    )
+    @ApiResponse(responseCode = "200", description = "Équipement trouvé")
+    @ApiResponse(responseCode = "404", description = "Équipement non trouvé")
     @Transactional(readOnly = true)
-    public EquipmentDTO getById(@PathVariable Long id) {
+    public EquipmentDTO getById(
+            @PathVariable
+            @Parameter(description = "ID unique de l'équipement", example = "1")
+            Long id) {
         return equipmentRepository.findById(id)
                 .map(EquipmentDTO::fromEntity)  // ← Conversion vers DTO
                 .orElseThrow(() -> new IllegalArgumentException("Equipment not found: " + id));
@@ -74,28 +128,76 @@ public class EquipmentController {
     // mais retourner DTO en sortie pour la cohérence
 
     @PostMapping
+    @Operation(
+        summary = "Créer un nouvel équipement",
+        description = "Crée un nouvel équipement dans le système avec les informations fournies"
+    )
+    @ApiResponse(responseCode = "201", description = "Équipement créé avec succès")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
     @Transactional
-    public EquipmentDTO create(@RequestBody Equipment equipment) {
-        equipment.setId(null);
+    public EquipmentDTO create(
+            @RequestBody
+            EquipmentDTO equipmentDTO) {
+        Equipment equipment = new Equipment();
+        equipment.setName(equipmentDTO.getName());
+        equipment.setDescription(equipmentDTO.getDescription());
+        equipment.setCategory(equipmentDTO.getCategory());
+        equipment.setPricePerDay(equipmentDTO.getPricePerDay());
+        equipment.setStockQuantity(equipmentDTO.getStockQuantity());
+        equipment.setAvailableQuantity(equipmentDTO.getAvailableQuantity());
+        equipment.setImageUrl(equipmentDTO.getImageUrl());
+        equipment.setSpecifications(equipmentDTO.getSpecifications());
+        equipment.setIsActive(equipmentDTO.getIsActive());
         equipment.setReservationEquipments(new java.util.HashSet<>());
+        
         Equipment saved = equipmentRepository.save(equipment);
-        return EquipmentDTO.fromEntity(saved);  // ← Retourne un DTO
+        return EquipmentDTO.fromEntity(saved);
     }
 
     @PutMapping("/{id}")
+    @Operation(
+        summary = "Mettre à jour un équipement",
+        description = "Met à jour les informations d'un équipement existant"
+    )
+    @ApiResponse(responseCode = "200", description = "Équipement mis à jour avec succès")
+    @ApiResponse(responseCode = "404", description = "Équipement non trouvé")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
     @Transactional
-    public EquipmentDTO update(@PathVariable Long id, @RequestBody Equipment equipment) {
+    public EquipmentDTO update(
+            @PathVariable
+            @Parameter(description = "ID de l'équipement à mettre à jour", example = "1")
+            Long id,
+            @RequestBody
+            EquipmentDTO equipmentDTO) {
         Equipment existing = equipmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Equipment not found: " + id));
-        equipment.setId(id);
-        equipment.setReservationEquipments(existing.getReservationEquipments());
-        Equipment updated = equipmentRepository.save(equipment);
-        return EquipmentDTO.fromEntity(updated);  // ← Retourne un DTO
+        
+        existing.setName(equipmentDTO.getName());
+        existing.setDescription(equipmentDTO.getDescription());
+        existing.setCategory(equipmentDTO.getCategory());
+        existing.setPricePerDay(equipmentDTO.getPricePerDay());
+        existing.setStockQuantity(equipmentDTO.getStockQuantity());
+        existing.setAvailableQuantity(equipmentDTO.getAvailableQuantity());
+        existing.setImageUrl(equipmentDTO.getImageUrl());
+        existing.setSpecifications(equipmentDTO.getSpecifications());
+        existing.setIsActive(equipmentDTO.getIsActive());
+        
+        Equipment updated = equipmentRepository.save(existing);
+        return EquipmentDTO.fromEntity(updated);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Supprimer un équipement",
+        description = "Supprime définitivement un équipement du système"
+    )
+    @ApiResponse(responseCode = "204", description = "Équipement supprimé avec succès")
+    @ApiResponse(responseCode = "404", description = "Équipement non trouvé")
     @Transactional
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Parameter(description = "ID de l'équipement à supprimer", example = "1")
+            Long id) {
         if (!equipmentRepository.existsById(id)) throw new IllegalArgumentException("Equipment not found: " + id);
         equipmentRepository.deleteById(id);
         return ResponseEntity.noContent().build();

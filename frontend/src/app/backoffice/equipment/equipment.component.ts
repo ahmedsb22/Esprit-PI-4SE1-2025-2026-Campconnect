@@ -24,7 +24,9 @@ export class EquipmentComponent implements OnInit {
     category: 'SHELTER',
     pricePerDay: 0,
     stockQuantity: 0,
-    imageUrl: ''
+    availableQuantity: 0,
+    imageUrl: '',
+    isActive: true
   };
 
   private apiUrl = `${environment.apiUrl}/equipment`;
@@ -71,25 +73,56 @@ export class EquipmentComponent implements OnInit {
   }
 
   editItem(item: any) {
+    console.log('Opening edit modal for item:', item);
     this.editingItem = { ...item };
-    const modalElement = document.getElementById('editEquipmentModal');
-    if (modalElement && (window as any).bootstrap) {
-      const modal = new (window as any).bootstrap.Modal(modalElement);
-      modal.show();
-    }
+    console.log('editingItem after assignment:', this.editingItem);
+    
+    setTimeout(() => {
+      const modalElement = document.getElementById('editEquipmentModal');
+      console.log('Modal element found:', !!modalElement);
+      
+      if (modalElement && (window as any).bootstrap) {
+        try {
+          const modal = (window as any).bootstrap.Modal.getOrCreateInstance(modalElement);
+          console.log('Modal instance:', !!modal);
+          modal.show();
+          console.log('Modal shown');
+        } catch (e) {
+          console.error('Error showing modal:', e);
+        }
+      } else {
+        console.warn('Bootstrap not available or modal element not found');
+      }
+    }, 100);
   }
 
   updateItem() {
+    if (!this.editingItem || !this.editingItem.id) {
+      console.error('No equipment selected for update');
+      return;
+    }
+    
+    console.log('Sending update request for ID:', this.editingItem.id, 'Data:', this.editingItem);
+    
     this.http.put(`${this.apiUrl}/${this.editingItem.id}`, this.editingItem).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Update successful:', response);
         const modalElement = document.getElementById('editEquipmentModal');
         if (modalElement && (window as any).bootstrap) {
           const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
           if (modal) modal.hide();
         }
+        this.editingItem = null;
         this.loadEquipment();
       },
-      error: (err) => console.error('Failed to update equipment', err)
+      error: (err) => {
+        console.error('Failed to update equipment:', err);
+        if (err.error && err.error.message) {
+          alert('Erreur: ' + err.error.message);
+        } else {
+          alert('Erreur lors de la mise à jour');
+        }
+      }
     });
   }
 
@@ -101,7 +134,7 @@ export class EquipmentComponent implements OnInit {
           const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
           if (modal) modal.hide();
         }
-        this.newItem = { name: '', description: '', category: 'SHELTER', pricePerDay: 0, stockQuantity: 0, imageUrl: '' };
+        this.newItem = { name: '', description: '', category: 'SHELTER', pricePerDay: 0, stockQuantity: 0, availableQuantity: 0, imageUrl: '', isActive: true };
         this.loadEquipment();
       },
       error: (err) => console.error('Failed to create equipment', err)

@@ -1,5 +1,5 @@
 # Dockerfile pour le Backend Spring Boot
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-22 AS build
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Image finale avec JRE
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:22-jre-alpine
 
 WORKDIR /app
 

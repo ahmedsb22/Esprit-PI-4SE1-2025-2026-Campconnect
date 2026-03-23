@@ -1,5 +1,8 @@
 package tn.esprit.exam.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.exam.entity.Reservation;
@@ -12,6 +15,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/analytics")
+@Tag(
+    name = "Analytics",
+    description = "Statistiques et tableau de bord - rapports de performance et revenus"
+)
 @RequiredArgsConstructor
 public class AnalyticsController {
 
@@ -22,6 +29,11 @@ public class AnalyticsController {
     private final InvoiceRepository invoiceRepository;
 
     @GetMapping("/dashboard")
+    @Operation(
+        summary = "Récupérer le tableau de bord analytique",
+        description = "Retourne les statistiques globales du système incluant les revenus, le nombre de réservations et l'utilisation"
+    )
+    @ApiResponse(responseCode = "200", description = "Données analytiques du tableau de bord")
     public Map<String, Object> getDashboard() {
         Map<String, Object> result = new HashMap<>();
         result.put("totalSites", campingSiteRepository.count());

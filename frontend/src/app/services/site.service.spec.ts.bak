@@ -1,0 +1,47 @@
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ApiConfigService } from './api-config.service';
+import { SiteService, CampingSite } from './site.service';
+
+describe('SiteService', () => {
+  let service: SiteService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        SiteService,
+        {
+          provide: ApiConfigService,
+          useValue: {
+            getEndpointUrl: (path: string) => `http://localhost:8089/api${path}`
+          }
+        }
+      ]
+    });
+
+    service = TestBed.inject(SiteService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should call GET /api/sites when getAllSites is invoked', () => {
+    const mockSites: CampingSite[] = [
+      { id: 1, name: 'Test', description: '', location: '', address: '', pricePerNight: 10, capacity: 2 }
+    ];
+
+    service.getAllSites().subscribe((sites) => {
+      expect(sites.length).toBe(1);
+      expect(sites[0].id).toBe(1);
+    });
+
+    const req = httpMock.expectOne('http://localhost:8089/api/sites');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockSites);
+  });
+});
+

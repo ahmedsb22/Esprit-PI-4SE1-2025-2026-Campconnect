@@ -1,5 +1,9 @@
 package tn.esprit.exam.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contracts")
+@Tag(
+    name = "Contracts",
+    description = "Gestion des contrats de camping - CRUD et signature"
+)
 @RequiredArgsConstructor
 public class ContractController {
 
@@ -24,6 +32,11 @@ public class ContractController {
     private final ReservationRepository reservationRepository;
 
     @GetMapping
+    @Operation(
+        summary = "Récupérer tous les contrats",
+        description = "Retourne la liste complète de tous les contrats du système"
+    )
+    @ApiResponse(responseCode = "200", description = "Liste des contrats")
     @Transactional(readOnly = true)
     public List<ContractDTO> getAll() {
         return contractRepository.findAll().stream()
@@ -32,15 +45,34 @@ public class ContractController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+        summary = "Récupérer un contrat par ID",
+        description = "Retourne les détails complets d'un contrat spécifique"
+    )
+    @ApiResponse(responseCode = "200", description = "Contrat trouvé")
+    @ApiResponse(responseCode = "404", description = "Contrat non trouvé")
     @Transactional(readOnly = true)
-    public ContractDTO getById(@PathVariable Long id) {
+    public ContractDTO getById(
+            @PathVariable
+            @Parameter(description = "ID du contrat", example = "1")
+            Long id) {
         return toDTO(contractRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract not found: " + id)));
     }
 
     @PostMapping
+    @Operation(
+        summary = "Créer un nouveau contrat",
+        description = "Crée un nouveau contrat associé à une réservation"
+    )
+    @ApiResponse(responseCode = "201", description = "Contrat créé avec succès")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
+    @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
     @Transactional
-    public ContractDTO create(@RequestBody ContractDTO dto) {
+    public ContractDTO create(
+            @RequestBody
+            @Parameter(description = "Données du nouveau contrat (contractNumber, terms, status, reservationId)")
+            ContractDTO dto) {
         Contract contract = new Contract();
         contract.setContractNumber(dto.getContractNumber() != null ? dto.getContractNumber() : "CNT-" + System.currentTimeMillis());
         contract.setTerms(dto.getTerms() != null ? dto.getTerms() : "Standard camping contract terms.");
@@ -55,8 +87,20 @@ public class ContractController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+        summary = "Mettre à jour un contrat",
+        description = "Met à jour les informations d'un contrat existant (termes, statut, signature)"
+    )
+    @ApiResponse(responseCode = "200", description = "Contrat mis à jour")
+    @ApiResponse(responseCode = "404", description = "Contrat non trouvé")
     @Transactional
-    public ContractDTO update(@PathVariable Long id, @RequestBody ContractDTO dto) {
+    public ContractDTO update(
+            @PathVariable
+            @Parameter(description = "ID du contrat à mettre à jour", example = "1")
+            Long id,
+            @RequestBody
+            @Parameter(description = "Données mises à jour du contrat (terms, status, isSigned, signatureUrl)")
+            ContractDTO dto) {
         Contract contract = contractRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract not found: " + id));
         if (dto.getTerms() != null) contract.setTerms(dto.getTerms());
@@ -67,8 +111,17 @@ public class ContractController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Supprimer un contrat",
+        description = "Supprime définitivement un contrat du système"
+    )
+    @ApiResponse(responseCode = "204", description = "Contrat supprimé")
+    @ApiResponse(responseCode = "404", description = "Contrat non trouvé")
     @Transactional
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Parameter(description = "ID du contrat à supprimer", example = "1")
+            Long id) {
         if (!contractRepository.existsById(id))
             throw new ResourceNotFoundException("Contract not found: " + id);
         contractRepository.deleteById(id);

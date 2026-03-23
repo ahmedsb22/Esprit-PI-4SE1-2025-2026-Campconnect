@@ -207,14 +207,27 @@ export class BookingsComponent implements OnInit {
   }
 
   updateStatus(id: number, status: string) {
+    console.log('🔄 Updating booking status:', { id, status });
+    
+    // Close the dropdown using Bootstrap 5 API
+    const buttons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    buttons.forEach(button => {
+      const dropdown = (window as any).bootstrap?.Dropdown?.getInstance(button);
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+    
     this.http.put(`${this.apiUrl}/${id}/status`, null, { params: { status } }).subscribe({
-      next: () => {
-        alert('Statut mis à jour avec succès !');
+      next: (response) => {
+        console.log('✅ Status updated successfully:', response);
+        alert('✔️ Statut mis à jour avec succès !');
         this.loadBookings();
       },
       error: (err) => {
-        console.error('Status update error:', err);
-        alert('Erreur lors de la mise à jour du statut: ' + (err.error?.message ?? err.message));
+        console.error('❌ Status update error:', err);
+        const errorMsg = err.error?.message ?? err.error?.error ?? err.status ?? 'Erreur inconnue';
+        alert('❌ Erreur lors de la mise à jour du statut:\n' + errorMsg);
       }
     });
   }

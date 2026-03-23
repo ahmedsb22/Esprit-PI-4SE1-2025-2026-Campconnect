@@ -162,6 +162,10 @@
             <input type="text" class="form-control" [(ngModel)]="newItem.name" name="name" required>
           </div>
           <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" [(ngModel)]="newItem.description" name="description" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
             <label>Category</label>
             <select class="form-control" [(ngModel)]="newItem.category" name="category">
               <option value="SHELTER">Shelter</option>
@@ -178,6 +182,10 @@
           <div class="form-group">
             <label>Stock Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="newItem.stockQuantity" name="stock" required>
+          </div>
+          <div class="form-group">
+            <label>Image URL</label>
+            <input type="text" class="form-control" [(ngModel)]="newItem.imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg">
           </div>
           <div class="modal-footer px-0 pb-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -204,12 +212,34 @@
             <input type="text" class="form-control" [(ngModel)]="editingItem.name" name="name" required>
           </div>
           <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" [(ngModel)]="editingItem.description" name="description" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select class="form-control" [(ngModel)]="editingItem.category" name="category">
+              <option value="SHELTER">Shelter</option>
+              <option value="COOKING">Cooking</option>
+              <option value="LIGHTING">Lighting</option>
+              <option value="SLEEPING">Sleeping</option>
+              <option value="TOOLS">Tools</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label>Price Per Day</label>
             <input type="number" class="form-control" [(ngModel)]="editingItem.pricePerDay" name="price" required>
           </div>
           <div class="form-group">
             <label>Stock Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="editingItem.stockQuantity" name="stock" required>
+          </div>
+          <div class="form-group">
+            <label>Available Quantity</label>
+            <input type="number" class="form-control" [(ngModel)]="editingItem.availableQuantity" name="available">
+          </div>
+          <div class="form-group">
+            <label>Image URL</label>
+            <input type="text" class="form-control" [(ngModel)]="editingItem.imageUrl" name="imageUrl">
           </div>
           <div class="modal-footer px-0 pb-0">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

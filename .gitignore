@@ -1,3 +1,7 @@
+# Documentation (keep locally, don't push to GitHub)
+*.md
+*.txt
+
 # Maven
 target/
 *.class
