@@ -19,8 +19,15 @@ RUN npm run build -- --configuration production
 # Stage 2: Serve avec Nginx
 FROM nginx:alpine
 
-# Copier les fichiers buildés
-COPY --from=build /app/dist/campconnect-frontend/browser /usr/share/nginx/html
+# Copier les fichiers buildés (Angular 17+ peut mettre dans dist/project/browser)
+# On copie tout le contenu du dossier de build pour être sûr
+COPY --from=build /app/dist/campconnect-frontend /usr/share/nginx/html
+
+# Si Angular a créé un sous-dossier browser, on déplace son contenu à la racine
+RUN if [ -d "/usr/share/nginx/html/browser" ]; then \
+        cp -r /usr/share/nginx/html/browser/* /usr/share/nginx/html/ && \
+        rm -rf /usr/share/nginx/html/browser; \
+    fi
 
 # Copier la configuration Nginx personnalisée
 COPY nginx.conf /etc/nginx/conf.d/default.conf
