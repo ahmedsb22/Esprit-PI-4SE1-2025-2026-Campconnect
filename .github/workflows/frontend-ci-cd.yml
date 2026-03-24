@@ -101,7 +101,7 @@ jobs:
         file: ./frontend/Dockerfile
         push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DOCKER_USERNAME != '' }}
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:latest
-          ${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:${{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME || 'local' }}/campconnect-frontend:latest
+          ${{ secrets.DOCKER_USERNAME || 'local' }}/campconnect-frontend:${{ github.sha }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
