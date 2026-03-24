@@ -92,15 +92,16 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+      continue-on-error: true
         
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: ./frontend
         file: ./frontend/Dockerfile
-        push: true
+        push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DOCKER_USERNAME != '' }}
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:${{ github.sha }}
           ${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:latest
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:buildcache,mode=max
+          ${{ secrets.DOCKER_USERNAME }}/campconnect-frontend:${{ github.sha }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
