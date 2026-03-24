@@ -4,8 +4,195 @@ metadata:
   name: mysql-init-scripts
 data:
   01-schema.sql: |
-    -- Schema SQL sera chargé depuis le ConfigMap ou un volume
-    -- Vous pouvez copier le contenu de schema.sql ici
+    SET FOREIGN_KEY_CHECKS = 0;
+    DROP TABLE IF EXISTS invoices;
+    DROP TABLE IF EXISTS contracts;
+    DROP TABLE IF EXISTS reservation_equipment;
+    DROP TABLE IF EXISTS reservations;
+    DROP TABLE IF EXISTS camping_sites;
+    DROP TABLE IF EXISTS equipment;
+    DROP TABLE IF EXISTS user_roles;
+    DROP TABLE IF EXISTS roles;
+    DROP TABLE IF EXISTS users;
+    SET FOREIGN_KEY_CHECKS = 1;
+
+    CREATE TABLE users (
+        id         BIGINT NOT NULL AUTO_INCREMENT,
+        first_name VARCHAR(100),
+        last_name  VARCHAR(100),
+        email      VARCHAR(255),
+        password   VARCHAR(255),
+        phone      VARCHAR(20),
+        address    VARCHAR(500),
+        profile_image VARCHAR(500),
+        created_at DATETIME(6) NOT NULL,
+        updated_at DATETIME(6),
+        PRIMARY KEY (id),
+        UNIQUE KEY uk_users_email (email)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE roles (
+        id          BIGINT NOT NULL AUTO_INCREMENT,
+        name        ENUM('ADMIN','CAMPER','OWNER') NOT NULL,
+        permissions VARCHAR(500),
+        PRIMARY KEY (id),
+        UNIQUE KEY uk_roles_name (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE user_roles (
+        user_id BIGINT NOT NULL,
+        role_id BIGINT NOT NULL,
+        PRIMARY KEY (user_id, role_id),
+        CONSTRAINT fk_ur_user FOREIGN KEY (user_id) REFERENCES users(id),
+        CONSTRAINT fk_ur_role FOREIGN KEY (role_id) REFERENCES roles(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE camping_sites (
+        id              BIGINT NOT NULL AUTO_INCREMENT,
+        name            VARCHAR(100),
+        description     TEXT,
+        location        VARCHAR(255),
+        address         VARCHAR(255),
+        price_per_night DECIMAL(10,2),
+        capacity        INT,
+        category        VARCHAR(50),
+        image_url       VARCHAR(500),
+        has_wifi        BIT NOT NULL DEFAULT 0,
+        has_parking     BIT NOT NULL DEFAULT 0,
+        has_restrooms   BIT NOT NULL DEFAULT 0,
+        has_showers     BIT NOT NULL DEFAULT 0,
+        has_electricity BIT NOT NULL DEFAULT 0,
+        has_pet_friendly BIT NOT NULL DEFAULT 0,
+        is_active       BIT NOT NULL DEFAULT 1,
+        is_verified     BIT NOT NULL DEFAULT 0,
+        rating          DECIMAL(3,2) DEFAULT 0.00,
+        review_count    INT NOT NULL DEFAULT 0,
+        owner_id        BIGINT,
+        created_at      DATETIME(6) NOT NULL,
+        updated_at      DATETIME(6) NOT NULL,
+        PRIMARY KEY (id),
+        CONSTRAINT fk_cs_owner FOREIGN KEY (owner_id) REFERENCES users(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE equipment (
+        id                 BIGINT NOT NULL AUTO_INCREMENT,
+        name               VARCHAR(100),
+        description        TEXT,
+        category           VARCHAR(50),
+        price_per_day      DECIMAL(10,2),
+        stock_quantity     INT,
+        available_quantity INT,
+        image_url          VARCHAR(500),
+        specifications     VARCHAR(100),
+        is_active          BIT NOT NULL DEFAULT 1,
+        rating             DECIMAL(3,2) DEFAULT 0.00,
+        review_count       INT NOT NULL DEFAULT 0,
+        provider_id        BIGINT,
+        created_at         DATETIME(6) NOT NULL,
+        updated_at         DATETIME(6) NOT NULL,
+        PRIMARY KEY (id),
+        CONSTRAINT fk_eq_provider FOREIGN KEY (provider_id) REFERENCES users(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE reservations (
+        id                BIGINT NOT NULL AUTO_INCREMENT,
+        reservation_number VARCHAR(50),
+        check_in_date     DATE,
+        check_out_date    DATE,
+        number_of_guests  INT,
+        total_price       DECIMAL(10,2),
+        status            ENUM('PENDING','CONFIRMED','CANCELLED','CHECKED_IN','CHECKED_OUT','COMPLETED'),
+        special_requests  TEXT,
+        camper_id         BIGINT,
+        camping_site_id   BIGINT,
+        created_at        DATETIME(6) NOT NULL,
+        updated_at        DATETIME(6) NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY uk_res_number (reservation_number),
+        CONSTRAINT fk_res_camper FOREIGN KEY (camper_id) REFERENCES users(id),
+        CONSTRAINT fk_res_site   FOREIGN KEY (camping_site_id) REFERENCES camping_sites(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE reservation_equipment (
+        id             BIGINT NOT NULL AUTO_INCREMENT,
+        reservation_id BIGINT,
+        equipment_id   BIGINT,
+        quantity       INT,
+        price_per_day  DECIMAL(10,2),
+        subtotal       DECIMAL(10,2),
+        PRIMARY KEY (id),
+        CONSTRAINT fk_re_reservation FOREIGN KEY (reservation_id) REFERENCES reservations(id),
+        CONSTRAINT fk_re_equipment   FOREIGN KEY (equipment_id)   REFERENCES equipment(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE contracts (
+        id              BIGINT NOT NULL AUTO_INCREMENT,
+        contract_number VARCHAR(50),
+        terms           TEXT,
+        status          ENUM('DRAFT','PENDING','SIGNED','ACTIVE','COMPLETED','CANCELLED'),
+        is_signed       BIT NOT NULL DEFAULT 0,
+        signature_url   VARCHAR(500),
+        signed_at       DATETIME(6),
+        reservation_id  BIGINT,
+        created_at      DATETIME(6) NOT NULL,
+        updated_at      DATETIME(6) NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY uk_contract_number (contract_number),
+        UNIQUE KEY uk_contract_reservation (reservation_id),
+        CONSTRAINT fk_ct_reservation FOREIGN KEY (reservation_id) REFERENCES reservations(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE invoices (
+        id                  BIGINT NOT NULL AUTO_INCREMENT,
+        invoice_number      VARCHAR(50),
+        total_amount        DECIMAL(10,2),
+        status              ENUM('DRAFT','SENT','PAID','CANCELLED'),
+        notes               TEXT,
+        issued_at           DATETIME(6),
+        reservation_id      BIGINT,
+        equipment_order_id  BIGINT,
+        PRIMARY KEY (id),
+        UNIQUE KEY uk_invoice_number (invoice_number),
+        CONSTRAINT fk_inv_reservation FOREIGN KEY (reservation_id)     REFERENCES reservations(id),
+        CONSTRAINT fk_inv_eq_order    FOREIGN KEY (equipment_order_id) REFERENCES reservation_equipment(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
   02-data.sql: |
-    -- Data SQL sera chargé depuis le ConfigMap ou un volume
-    -- Vous pouvez copier le contenu de data.sql ici
+    INSERT INTO roles (name, permissions) VALUES
+    ('ADMIN',  'ALL'),
+    ('CAMPER', 'READ,BOOK'),
+    ('OWNER',  'READ,MANAGE_SITE');
+
+    INSERT INTO users (email, password, first_name, last_name, phone, address, created_at, updated_at) VALUES
+    ('admin@campconnect.tn',   '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu', 'Admin',   'System',   '+216 71 000 001', 'Tunis, Tunisie',   NOW(), NOW()),
+    ('mohamed@campconnect.tn', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Mohamed', 'Ben Ali',  '+216 22 111 222', 'Sousse, Tunisie',  NOW(), NOW()),
+    ('fatma@campconnect.tn',   '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Fatma',   'Gharbi',   '+216 25 333 444', 'Sfax, Tunisie',    NOW(), NOW()),
+    ('youssef@campconnect.tn', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Youssef', 'Hamdi',    '+216 98 555 666', 'Bizerte, Tunisie', NOW(), NOW()),
+    ('leila@campconnect.tn',   '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu',  'Leila',   'Mansouri', '+216 55 777 888', 'Nabeul, Tunisie',  NOW(), NOW());
+
+    INSERT INTO user_roles (user_id, role_id) VALUES (1, 1), (2, 2), (3, 2), (4, 3), (5, 3);
+
+    INSERT INTO camping_sites (name, description, location, address, price_per_night, capacity, category, image_url,
+        has_wifi, has_parking, has_restrooms, has_showers, has_electricity, has_pet_friendly,
+        is_active, is_verified, rating, review_count, owner_id, created_at, updated_at) VALUES
+    ('Mountain View Campsite', 'Nestled in the mountains with breathtaking views.', 'Ain Draham, North Tunisia', 'Route Forestiere, Ain Draham 8300', 75.00, 20, 'MOUNTAIN', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', 0, 1, 1, 1, 1, 0, 1, 1, 4.80, 127, 4, NOW(), NOW()),
+    ('Coastal Paradise', 'Beach camping at its finest.', 'Hammamet, Coastal', 'Zone Touristique Hammamet Sud, Nabeul 8050', 120.00, 30, 'BEACH', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 1, 1, 1, 1, 1, 0, 1, 1, 4.90, 203, 4, NOW(), NOW()),
+    ('Desert Oasis', 'Experience the magic of the Sahara.', 'Tozeur, South Tunisia', 'Oasis de Tozeur, Tozeur 2200', 150.00, 10, 'DESERT', 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800', 0, 1, 1, 0, 0, 0, 1, 1, 5.00, 156, 5, NOW(), NOW()),
+    ('Forest Retreat', 'Peaceful forest setting perfect for families.', 'Tabarka, North Tunisia', 'Route du Corail Tabarka, Jendouba 8110', 65.00, 15, 'FOREST', 'https://images.unsplash.com/photo-1537225228614-56cc3556d7ed?w=800', 1, 1, 1, 1, 1, 1, 1, 1, 4.70, 89, 5, NOW(), NOW()),
+    ('Lakeside Camping', 'Camping by the lake.', 'Ichkeul, North Tunisia', 'Parc National Ichkeul, Bizerte 7016', 85.00, 12, 'NATURE', 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=800', 0, 0, 1, 1, 0, 1, 1, 1, 4.60, 74, 5, NOW(), NOW()),
+    ('Glamping Luxury', 'Luxury glamping tents.', 'Sidi Bou Said, Coastal', 'Rue Hedi Zarrouk, Sidi Bou Said 2026', 250.00, 8, 'GLAMPING', 'https://images.unsplash.com/photo-1571863533956-01c88e79957e?w=800', 1, 1, 1, 1, 1, 0, 1, 1, 5.00, 45, 4, NOW(), NOW());
+
+    INSERT INTO equipment (name, description, category, price_per_day, stock_quantity, available_quantity, image_url, specifications, is_active, rating, review_count, provider_id, created_at, updated_at) VALUES
+    ('Family Tent 6 Person', 'Spacious waterproof tent.', 'TENTS', 35.00, 10, 10, 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=800', '6 persons, Waterproof', 1, 4.50, 20, 3, NOW(), NOW()),
+    ('Premium Sleeping Bag', 'Warm and comfortable sleeping bag.', 'SLEEPING_GEAR', 12.00, 20, 20, 'https://images.unsplash.com/photo-1555375771-14b2a63968a0?w=800', '0-15°C, Compact', 1, 4.60, 35, 3, NOW(), NOW()),
+    ('Portable Camping Stove', 'Compact gas stove.', 'COOKING', 18.00, 15, 15, 'https://images.unsplash.com/photo-1525811902-f2342640856e?w=800', 'Gas powered, Cookware included', 1, 4.40, 28, 3, NOW(), NOW());
+
+    INSERT INTO reservations (reservation_number, check_in_date, check_out_date, number_of_guests, total_price, status, camper_id, camping_site_id, created_at, updated_at) VALUES
+    ('RES-001', DATE_ADD(CURDATE(), INTERVAL 5 DAY),  DATE_ADD(CURDATE(), INTERVAL 8 DAY),  4, 225.00,  'CONFIRMED',  2, 1, NOW(), NOW()),
+    ('RES-002', DATE_ADD(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 14 DAY), 2, 480.00,  'PENDING',    3, 2, NOW(), NOW());
+
+    INSERT INTO contracts (contract_number, terms, is_signed, signed_at, status, reservation_id, created_at, updated_at) VALUES
+    ('CTR-001', 'Standard camping agreement.', 1, DATE_SUB(NOW(), INTERVAL 1 DAY), 'ACTIVE',  1, NOW(), NOW());
+
+    INSERT INTO invoices (invoice_number, total_amount, status, issued_at, notes, reservation_id, equipment_order_id) VALUES
+    ('INV-001', 435.00, 'PAID', DATE_SUB(NOW(), INTERVAL 2 DAY), 'Camping + equipment rental.', 1, NULL);
