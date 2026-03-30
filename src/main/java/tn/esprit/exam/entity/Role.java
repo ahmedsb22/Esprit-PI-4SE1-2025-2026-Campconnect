@@ -1,5 +1,6 @@
 package tn.esprit.exam.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Set;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "roles")
 @Getter

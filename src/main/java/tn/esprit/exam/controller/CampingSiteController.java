@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.exam.dto.CampingSiteDTO;
 import tn.esprit.exam.entity.CampingSite;
 import tn.esprit.exam.repository.CampingSiteRepository;
 
@@ -36,11 +37,10 @@ public class CampingSiteController {
     )
     @ApiResponse(responseCode = "200", description = "Liste des sites récupérée avec succès")
     @Transactional(readOnly = true)
-    public List<CampingSite> getAll() {
-        List<CampingSite> sites = campingSiteRepository.findAll();
-        // detach owner to prevent lazy loading during serialization
-        sites.forEach(s -> { if (s.getOwner() != null) s.getOwner().getRoles(); });
-        return sites;
+    public List<CampingSiteDTO> getAll() {
+        return campingSiteRepository.findAll().stream()
+                .map(CampingSiteDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/active")
@@ -50,8 +50,10 @@ public class CampingSiteController {
     )
     @ApiResponse(responseCode = "200", description = "Liste des sites actifs récupérée")
     @Transactional(readOnly = true)
-    public List<CampingSite> getActive() {
-        return campingSiteRepository.findByIsActiveTrue();
+    public List<CampingSiteDTO> getActive() {
+        return campingSiteRepository.findByIsActiveTrue().stream()
+                .map(CampingSiteDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/search")
@@ -61,7 +63,7 @@ public class CampingSiteController {
     )
     @ApiResponse(responseCode = "200", description = "Sites correspondant aux critères")
     @Transactional(readOnly = true)
-    public List<CampingSite> search(
+    public List<CampingSiteDTO> search(
             @RequestParam(required = false)
             @Parameter(description = "Localisation du site (recherche partielle, insensible à la casse)")
             String location,
@@ -82,6 +84,7 @@ public class CampingSiteController {
                 .filter(s -> category == null || (s.getCategory() != null && s.getCategory().equalsIgnoreCase(category)))
                 .filter(s -> minPrice == null || (s.getPricePerNight() != null && s.getPricePerNight().doubleValue() >= minPrice))
                 .filter(s -> maxPrice == null || (s.getPricePerNight() != null && s.getPricePerNight().doubleValue() <= maxPrice))
+                .map(CampingSiteDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -93,11 +96,12 @@ public class CampingSiteController {
     @ApiResponse(responseCode = "200", description = "Site trouvé et retourné")
     @ApiResponse(responseCode = "404", description = "Site non trouvé")
     @Transactional(readOnly = true)
-    public CampingSite getById(
+    public CampingSiteDTO getById(
             @PathVariable
             @Parameter(description = "ID unique du site", example = "1")
             Long id) {
         return campingSiteRepository.findById(id)
+                .map(CampingSiteDTO::fromEntity)
                 .orElseThrow(() -> new IllegalArgumentException("CampingSite not found: " + id));
     }
 
@@ -106,14 +110,30 @@ public class CampingSiteController {
         summary = "Créer un nouveau site",
         description = "Crée un nouveau site de camping dans le système"
     )
-    @ApiResponse(responseCode = "201", description = "Site créé avec succès", content = @Content(schema = @Schema(implementation = CampingSite.class)))
+    @ApiResponse(responseCode = "201", description = "Site créé avec succès", content = @Content(schema = @Schema(implementation = CampingSiteDTO.class)))
     @ApiResponse(responseCode = "400", description = "Données invalides")
     @Transactional
-    public ResponseEntity<CampingSite> create(@RequestBody CampingSite site) {
-        site.setId(null);
-        site.setReservations(new java.util.HashSet<>());
+    public ResponseEntity<CampingSiteDTO> create(@RequestBody CampingSiteDTO siteDTO) {
+        CampingSite site = new CampingSite();
+        site.setName(siteDTO.getName());
+        site.setDescription(siteDTO.getDescription());
+        site.setLocation(siteDTO.getLocation());
+        site.setAddress(siteDTO.getAddress());
+        site.setPricePerNight(siteDTO.getPricePerNight());
+        site.setCapacity(siteDTO.getCapacity());
+        site.setCategory(siteDTO.getCategory());
+        site.setImageUrl(siteDTO.getImageUrl());
+        site.setHasWifi(siteDTO.getHasWifi());
+        site.setHasParking(siteDTO.getHasParking());
+        site.setHasRestrooms(siteDTO.getHasRestrooms());
+        site.setHasShowers(siteDTO.getHasShowers());
+        site.setHasElectricity(siteDTO.getHasElectricity());
+        site.setHasPetFriendly(siteDTO.getHasPetFriendly());
+        site.setIsActive(siteDTO.getIsActive() != null ? siteDTO.getIsActive() : true);
+        site.setIsVerified(siteDTO.getIsVerified() != null ? siteDTO.getIsVerified() : false);
+        
         CampingSite saved = campingSiteRepository.save(site);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CampingSiteDTO.fromEntity(saved));
     }
 
     @PutMapping("/{id}")
@@ -124,16 +144,37 @@ public class CampingSiteController {
     @ApiResponse(responseCode = "200", description = "Site mis à jour")
     @ApiResponse(responseCode = "404", description = "Site non trouvé")
     @Transactional
-    public CampingSite update(
+    public CampingSiteDTO update(
             @PathVariable
             @Parameter(description = "ID du site à modifier", example = "1")
             Long id,
-            @RequestBody CampingSite site) {
+            @RequestBody CampingSiteDTO siteDTO) {
         CampingSite existing = campingSiteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("CampingSite not found: " + id));
-        site.setId(id);
-        site.setReservations(existing.getReservations());
-        return campingSiteRepository.save(site);
+        
+        // Mise à jour sélective
+        if (siteDTO.getName() != null) existing.setName(siteDTO.getName());
+        if (siteDTO.getDescription() != null) existing.setDescription(siteDTO.getDescription());
+        if (siteDTO.getLocation() != null) existing.setLocation(siteDTO.getLocation());
+        if (siteDTO.getAddress() != null) existing.setAddress(siteDTO.getAddress());
+        if (siteDTO.getPricePerNight() != null) existing.setPricePerNight(siteDTO.getPricePerNight());
+        if (siteDTO.getCapacity() != null) existing.setCapacity(siteDTO.getCapacity());
+        if (siteDTO.getCategory() != null) existing.setCategory(siteDTO.getCategory());
+        if (siteDTO.getImageUrl() != null) existing.setImageUrl(siteDTO.getImageUrl());
+        
+        // Booleans
+        if (siteDTO.getHasWifi() != null) existing.setHasWifi(siteDTO.getHasWifi());
+        if (siteDTO.getHasParking() != null) existing.setHasParking(siteDTO.getHasParking());
+        if (siteDTO.getHasRestrooms() != null) existing.setHasRestrooms(siteDTO.getHasRestrooms());
+        if (siteDTO.getHasShowers() != null) existing.setHasShowers(siteDTO.getHasShowers());
+        if (siteDTO.getHasElectricity() != null) existing.setHasElectricity(siteDTO.getHasElectricity());
+        if (siteDTO.getHasPetFriendly() != null) existing.setHasPetFriendly(siteDTO.getHasPetFriendly());
+        
+        if (siteDTO.getIsActive() != null) existing.setIsActive(siteDTO.getIsActive());
+        if (siteDTO.getIsVerified() != null) existing.setIsVerified(siteDTO.getIsVerified());
+        
+        CampingSite saved = campingSiteRepository.save(existing);
+        return CampingSiteDTO.fromEntity(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -161,7 +202,7 @@ public class CampingSiteController {
     @ApiResponse(responseCode = "200", description = "Site approuvé et activé")
     @ApiResponse(responseCode = "404", description = "Site non trouvé")
     @Transactional
-    public CampingSite approve(
+    public CampingSiteDTO approve(
             @PathVariable
             @Parameter(description = "ID du site à approuver", example = "1")
             Long id) {
@@ -169,7 +210,8 @@ public class CampingSiteController {
                 .orElseThrow(() -> new IllegalArgumentException("CampingSite not found: " + id));
         site.setIsVerified(true);
         site.setIsActive(true);
-        return campingSiteRepository.save(site);
+        CampingSite saved = campingSiteRepository.save(site);
+        return CampingSiteDTO.fromEntity(saved);
     }
 
     @PutMapping("/{id}/reject")
@@ -180,7 +222,7 @@ public class CampingSiteController {
     @ApiResponse(responseCode = "200", description = "Site rejeté et désactivé")
     @ApiResponse(responseCode = "404", description = "Site non trouvé")
     @Transactional
-    public CampingSite reject(
+    public CampingSiteDTO reject(
             @PathVariable
             @Parameter(description = "ID du site à rejeter", example = "1")
             Long id) {
@@ -188,6 +230,7 @@ public class CampingSiteController {
                 .orElseThrow(() -> new IllegalArgumentException("CampingSite not found: " + id));
         site.setIsVerified(false);
         site.setIsActive(false);
-        return campingSiteRepository.save(site);
+        CampingSite saved = campingSiteRepository.save(site);
+        return CampingSiteDTO.fromEntity(saved);
     }
 }

@@ -172,15 +172,15 @@ public class EquipmentController {
         Equipment existing = equipmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Equipment not found: " + id));
         
-        existing.setName(equipmentDTO.getName());
-        existing.setDescription(equipmentDTO.getDescription());
-        existing.setCategory(equipmentDTO.getCategory());
-        existing.setPricePerDay(equipmentDTO.getPricePerDay());
-        existing.setStockQuantity(equipmentDTO.getStockQuantity());
-        existing.setAvailableQuantity(equipmentDTO.getAvailableQuantity());
-        existing.setImageUrl(equipmentDTO.getImageUrl());
-        existing.setSpecifications(equipmentDTO.getSpecifications());
-        existing.setIsActive(equipmentDTO.getIsActive());
+        if (equipmentDTO.getName() != null) existing.setName(equipmentDTO.getName());
+        if (equipmentDTO.getDescription() != null) existing.setDescription(equipmentDTO.getDescription());
+        if (equipmentDTO.getCategory() != null) existing.setCategory(equipmentDTO.getCategory());
+        if (equipmentDTO.getPricePerDay() != null) existing.setPricePerDay(equipmentDTO.getPricePerDay());
+        if (equipmentDTO.getStockQuantity() != null) existing.setStockQuantity(equipmentDTO.getStockQuantity());
+        if (equipmentDTO.getAvailableQuantity() != null) existing.setAvailableQuantity(equipmentDTO.getAvailableQuantity());
+        if (equipmentDTO.getImageUrl() != null) existing.setImageUrl(equipmentDTO.getImageUrl());
+        if (equipmentDTO.getSpecifications() != null) existing.setSpecifications(equipmentDTO.getSpecifications());
+        if (equipmentDTO.getIsActive() != null) existing.setIsActive(equipmentDTO.getIsActive());
         
         Equipment updated = equipmentRepository.save(existing);
         return EquipmentDTO.fromEntity(updated);

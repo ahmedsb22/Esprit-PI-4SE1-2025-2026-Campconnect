@@ -1,5 +1,6 @@
 package tn.esprit.exam.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "invoices")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -35,6 +37,7 @@ public class Invoice {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
+    @Builder.Default
     private InvoiceStatus status = InvoiceStatus.DRAFT;
 
     @CreationTimestamp

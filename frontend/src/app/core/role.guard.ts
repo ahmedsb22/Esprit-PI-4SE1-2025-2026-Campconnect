@@ -7,19 +7,22 @@ export const roleGuard = (expectedRoles: string[]): CanActivateFn => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
+    // Si l'utilisateur n'est pas authentifié, on redirige vers le login
     if (!authService.isAuthenticated()) {
+      console.warn('GUARD: User not authenticated, redirecting to login');
       router.navigate(['/frontoffice/login'], { queryParams: { returnUrl: state.url } });
       return false;
     }
 
+    // On vérifie s'il a au moins un des rôles requis
     const hasRequiredRole = expectedRoles.some(role => authService.hasRole(role));
-
-    if (hasRequiredRole) {
-      return true;
+    
+    if (!hasRequiredRole) {
+      console.warn(`GUARD: User doesn't have required roles: ${expectedRoles}`);
+      router.navigate(['/frontoffice/home'], { queryParams: { error: 'forbidden' } });
+      return false;
     }
 
-    // Redirect to home if unauthorized
-    router.navigate(['/frontoffice/home']);
-    return false;
+    return true;
   };
 };

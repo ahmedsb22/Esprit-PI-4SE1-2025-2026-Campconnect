@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { EquipmentService } from '../../services/equipment.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-equipment',
@@ -24,14 +24,14 @@ export class EquipmentComponent implements OnInit {
     category: 'SHELTER',
     pricePerDay: 0,
     stockQuantity: 0,
-    availableQuantity: 0,
     imageUrl: '',
     isActive: true
   };
 
-  private apiUrl = `${environment.apiUrl}/equipment`;
+  public authService = inject(AuthService);
+  private equipmentService = inject(EquipmentService);
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   ngOnInit() {
     this.loadEquipment();
@@ -39,14 +39,15 @@ export class EquipmentComponent implements OnInit {
 
   loadEquipment() {
     this.loading = true;
-    this.http.get<any[]>(this.apiUrl).subscribe({
+    this.equipmentService.getAllEquipment().subscribe({
       next: (data) => {
-        this.equipment = data;
+        this.equipment = data; // Directly use DTOs
         this.applyFilter();
         this.loading = false;
       },
       error: (err) => {
         console.error('Failed to load equipment', err);
+        alert('Erreur lors du chargement des équipements: ' + (err.error?.message || err.message));
         this.loading = false;
       }
     });
@@ -58,86 +59,89 @@ export class EquipmentComponent implements OnInit {
     } else {
       const term = this.searchTerm.toLowerCase();
       this.filteredEquipment = this.equipment.filter(e => 
-        e.name.toLowerCase().includes(term) || 
-        e.category.toLowerCase().includes(term)
+        (e.name && e.name.toLowerCase().includes(term)) || 
+        (e.category && e.category.toLowerCase().includes(term))
       );
     }
   }
 
   deleteItem(id: number) {
     if (!confirm('Supprimer cet équipement ?')) return;
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-      next: () => this.loadEquipment(),
-      error: (err) => console.error('Failed to delete equipment', err)
+    this.equipmentService.deleteEquipment(id).subscribe({
+      next: () => {
+        alert('Équipement supprimé.');
+        this.loadEquipment();
+      },
+      error: (err) => alert('Erreur: ' + (err.error?.message || err.message))
     });
   }
 
   editItem(item: any) {
-    console.log('Opening edit modal for item:', item);
     this.editingItem = { ...item };
-    console.log('editingItem after assignment:', this.editingItem);
     
     setTimeout(() => {
       const modalElement = document.getElementById('editEquipmentModal');
-      console.log('Modal element found:', !!modalElement);
-      
       if (modalElement && (window as any).bootstrap) {
-        try {
-          const modal = (window as any).bootstrap.Modal.getOrCreateInstance(modalElement);
-          console.log('Modal instance:', !!modal);
-          modal.show();
-          console.log('Modal shown');
-        } catch (e) {
-          console.error('Error showing modal:', e);
-        }
-      } else {
-        console.warn('Bootstrap not available or modal element not found');
+        const modal = (window as any).bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
       }
     }, 100);
   }
 
   updateItem() {
-    if (!this.editingItem || !this.editingItem.id) {
-      console.error('No equipment selected for update');
-      return;
-    }
+    if (!this.editingItem || !this.editingItem.id) return;
     
-    console.log('Sending update request for ID:', this.editingItem.id, 'Data:', this.editingItem);
+    // On prépare un objet propre correspondant à EquipmentDTO
+    const itemToUpdate: any = {
+      id: this.editingItem.id,
+      name: this.editingItem.name,
+      description: this.editingItem.description,
+      category: this.editingItem.category,
+      pricePerDay: this.editingItem.pricePerDay,
+      stockQuantity: this.editingItem.stockQuantity,
+      imageUrl: this.editingItem.imageUrl,
+      specifications: this.editingItem.specifications,
+      isActive: this.editingItem.isActive
+    };
     
-    this.http.put(`${this.apiUrl}/${this.editingItem.id}`, this.editingItem).subscribe({
-      next: (response) => {
-        console.log('Update successful:', response);
+    // On récupère le providerId s'il existe
+    const providerId = this.editingItem.providerId;
+
+    this.equipmentService.updateEquipment(this.editingItem.id, itemToUpdate).subscribe({
+      next: () => {
         const modalElement = document.getElementById('editEquipmentModal');
         if (modalElement && (window as any).bootstrap) {
           const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-          if (modal) modal.hide();
+          modal?.hide();
         }
-        this.editingItem = null;
+        alert('Équipement mis à jour !');
         this.loadEquipment();
+        this.editingItem = null;
       },
       error: (err) => {
-        console.error('Failed to update equipment:', err);
-        if (err.error && err.error.message) {
-          alert('Erreur: ' + err.error.message);
-        } else {
-          alert('Erreur lors de la mise à jour');
-        }
+        console.error('Failed to update equipment', err);
+        alert('Erreur lors de la mise à jour: ' + (err.error?.message || err.message));
       }
     });
   }
 
   createItem() {
-    this.http.post(this.apiUrl, this.newItem).subscribe({
+    this.equipmentService.createEquipment(this.newItem as any).subscribe({
       next: () => {
         const modalElement = document.getElementById('addEquipmentModal');
         if (modalElement && (window as any).bootstrap) {
           const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-          if (modal) modal.hide();
+          modal?.hide();
         }
-        this.newItem = { name: '', description: '', category: 'SHELTER', pricePerDay: 0, stockQuantity: 0, availableQuantity: 0, imageUrl: '', isActive: true };
+        alert('Équipement créé avec succès !');
+        this.newItem = { name: '', description: '', category: 'SHELTER', pricePerDay: 0, stockQuantity: 0, imageUrl: '', isActive: true };
         this.loadEquipment();
       },
-      error: (err) => console.error('Failed to create equipment', err)
+      error: (err) => alert('Erreur lors de la création: ' + (err.error?.message || err.message))
     });
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

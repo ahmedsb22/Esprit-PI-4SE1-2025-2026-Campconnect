@@ -1,5 +1,6 @@
 package tn.esprit.exam.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
@@ -9,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "contracts")
 @Getter
@@ -29,6 +31,7 @@ public class Contract {
     private String terms;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isSigned = false;
 
     @Column

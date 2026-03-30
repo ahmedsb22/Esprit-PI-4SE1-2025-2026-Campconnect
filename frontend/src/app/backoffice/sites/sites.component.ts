@@ -1,9 +1,9 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { SiteService } from '../../services/site.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sites',
@@ -22,9 +22,10 @@ export class SitesComponent implements OnInit, AfterViewInit {
     rejected: 0
   };
 
-  private apiUrl = `${environment.apiUrl}/sites`;
+  public authService = inject(AuthService);
+  private siteService = inject(SiteService);
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   ngOnInit() {
     this.loadSites();
@@ -38,9 +39,9 @@ export class SitesComponent implements OnInit, AfterViewInit {
   }
 
   loadSites() {
-    this.http.get<any[]>(this.apiUrl).subscribe({
+    this.siteService.getAllSites().subscribe({
       next: (sites) => {
-        this.sites = sites.map(site => {
+        this.sites = sites.map((site: any) => {
           // Déterminer le statut à partir de isActive et isVerified
           let status = 'pending';
           if (site.isVerified === true && site.isActive === true) {
@@ -50,17 +51,10 @@ export class SitesComponent implements OnInit, AfterViewInit {
           }
           
           return {
-            id: site.id,
-            name: site.name,
-            description: site.description,
-            pricePerNight: site.pricePerNight,
-            owner: site.owner ? `${site.owner.firstName ?? ''} ${site.owner.lastName ?? ''}`.trim() : (site.ownerName || 'N/A'),
-            location: site.location,
+            ...site,
+            ownerName: site.ownerName || (site.owner ? `${site.owner.firstName ?? ''} ${site.owner.lastName ?? ''}`.trim() : 'N/A'),
             date: site.createdAt ?? '-',
-            status: status,
-            image: site.imageUrl || 'assets/img/placeholder.svg',
-            isActive: site.isActive,
-            isVerified: site.isVerified
+            status: status
           };
         });
         this.refreshStats();
@@ -76,7 +70,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
   approveSite(id: number) {
     if (!confirm('Approuver ce site de camping ?')) return;
     
-    this.http.put(`${this.apiUrl}/${id}/approve`, {}).subscribe({
+    this.siteService.updateSite(id, { isVerified: true, isActive: true } as any).subscribe({
       next: () => {
         alert('Site approuvé avec succès !');
         this.loadSites();
@@ -91,7 +85,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
   rejectSite(id: number) {
     if (!confirm('Rejeter ce site de camping ?')) return;
     
-    this.http.put(`${this.apiUrl}/${id}/reject`, {}).subscribe({
+    this.siteService.updateSite(id, { isVerified: false, isActive: false } as any).subscribe({
       next: () => {
         alert('Site rejeté.');
         this.loadSites();
@@ -104,7 +98,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
   }
 
   viewSite(id: number) {
-    this.http.get<any>(`${this.apiUrl}/${id}`).subscribe({
+    this.siteService.getSiteById(id).subscribe({
       next: (site) => {
         const status = site.isVerified && site.isActive ? 'Approuvé' : 
                       (!site.isVerified || !site.isActive) ? 'Rejeté' : 'En attente';
@@ -127,26 +121,28 @@ export class SitesComponent implements OnInit, AfterViewInit {
   deleteSite(id: number) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce site ?')) return;
     
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+    this.siteService.deleteSite(id).subscribe({
       next: () => {
         alert('Site supprimé avec succès.');
         this.loadSites();
       },
       error: (err) => {
         console.error('Failed to delete site', err);
-        alert('Erreur lors de la suppression.');
+        alert('Erreur lors de la suppression: ' + (err.error?.message || err.message));
       }
     });
   }
 
   editSite(site: any) {
     this.editingSite = { ...site };
-    // Show modal
-    const modalElement = document.getElementById('editSiteModal');
-    if (modalElement && (window as any).bootstrap) {
-      const modal = new (window as any).bootstrap.Modal(modalElement);
-      modal.show();
-    }
+    
+    setTimeout(() => {
+      const modalElement = document.getElementById('editSiteModal');
+      if (modalElement && (window as any).bootstrap) {
+        const modal = (window as any).bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+      }
+    }, 100);
   }
 
   updateSite() {
@@ -154,10 +150,31 @@ export class SitesComponent implements OnInit, AfterViewInit {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }
+
+    // On prépare un objet propre correspondant au CampingSiteDTO
+    const siteToUpdate: any = {
+        id: this.editingSite.id,
+        name: this.editingSite.name,
+        description: this.editingSite.description,
+        location: this.editingSite.location,
+        address: this.editingSite.address,
+        pricePerNight: this.editingSite.pricePerNight,
+        capacity: this.editingSite.capacity || 0,
+        category: this.editingSite.category || 'NATURE',
+        imageUrl: this.editingSite.imageUrl || this.editingSite.image, // Fallback si image existe
+        isActive: this.editingSite.isActive,
+        isVerified: this.editingSite.isVerified,
+        // Inclure les booléens s'ils existent
+        hasWifi: this.editingSite.hasWifi ?? false,
+        hasParking: this.editingSite.hasParking ?? false,
+        hasRestrooms: this.editingSite.hasRestrooms ?? false,
+        hasShowers: this.editingSite.hasShowers ?? false,
+        hasElectricity: this.editingSite.hasElectricity ?? false,
+        hasPetFriendly: this.editingSite.hasPetFriendly ?? false
+    };
     
-    this.http.put(`${this.apiUrl}/${this.editingSite.id}`, this.editingSite).subscribe({
+    this.siteService.updateSite(this.editingSite.id, siteToUpdate).subscribe({
       next: () => {
-        // Hide modal
         const modalElement = document.getElementById('editSiteModal');
         if (modalElement && (window as any).bootstrap) {
           const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
@@ -169,7 +186,9 @@ export class SitesComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Failed to update site', err);
-        alert('Erreur lors de la mise à jour.');
+        // Afficher l'erreur détaillée du backend
+        const errorMsg = err.error?.message || err.message || 'Erreur inconnue';
+        alert('Erreur lors de la mise à jour: ' + errorMsg);
       }
     });
   }
@@ -191,7 +210,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
   }
 
   initDataTable() {
-    // DataTable will be initialized by the script in angular.json
     if ((window as any).$ && (window as any).$.fn.DataTable) {
       const table = document.querySelector('#dataTable') as any;
       if (table && !(window as any).$.fn.DataTable.isDataTable(table)) {

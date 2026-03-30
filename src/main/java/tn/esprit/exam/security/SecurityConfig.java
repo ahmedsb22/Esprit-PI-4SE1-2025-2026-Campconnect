@@ -49,23 +49,29 @@ public class SecurityConfig {
                         // Routes publiques d'authentification
                         .requestMatchers("/api/auth/**").permitAll()
                         
-                        // Ressources statiques et documentation (accès public)
-                        .requestMatchers(HttpMethod.GET, "/api/sites/**", "/api/equipment/**", "/api/camping-sites/**").permitAll()
-                        .requestMatchers("/api-docs", "/api-docs/**", "/v2/api-docs", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
+                        // Ressources statiques et documentation (accès public GET uniquement)
+                        .requestMatchers(HttpMethod.GET, "/api/sites/active", "/api/sites/search", "/api/sites/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/equipment/**").permitAll()
+                        .requestMatchers("/api-docs", "/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
                         
                         // Actuator endpoints (pour monitoring)
                         .requestMatchers("/actuator/**").permitAll()
                         
-                        // PERMETTRE L'ACCÈS AU BACKOFFICE SANS AUTHENTIFICATION (pour développement/démo)
-                        // Toutes les routes API nécessaires pour le backoffice sont publiques
-                        .requestMatchers("/api/**").permitAll()
+                        // Routes ADMIN
+                        .requestMatchers("/api/users/**", "/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/sites/*/approve", "/api/sites/*/reject").hasRole("ADMIN")
                         
-                        // Routes protégées par rôle (si besoin d'activer plus tard)
-                        // .requestMatchers("/api/admin/**", "/api/users/**", "/api/users").hasRole("ADMIN")
-                        // .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "OWNER")
+                        // Routes OWNER & ADMIN (Gestion Backoffice)
+                        .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "OWNER")
+                        .requestMatchers("/api/sites", "/api/sites/**").hasAnyRole("ADMIN", "OWNER")
+                        .requestMatchers("/api/equipment", "/api/equipment/**").hasAnyRole("ADMIN", "OWNER")
                         
-                        // Tout le reste est public pour le moment
-                        .anyRequest().permitAll()
+                        // Routes CAMPER & OWNER & ADMIN (Authenticated)
+                        .requestMatchers("/api/bookings/**", "/api/profile/**").authenticated()
+                        .requestMatchers("/api/contracts/sign/**").hasRole("CAMPER")
+                        
+                        // Tout le reste nécessite une authentification
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {

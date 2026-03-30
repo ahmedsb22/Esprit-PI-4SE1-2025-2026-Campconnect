@@ -6,10 +6,8 @@ export const authGuard: CanActivateFn = (_route: ActivatedRouteSnapshot, state: 
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    return true;
-  }
-
-  router.navigate(['/frontoffice/login'], { queryParams: { returnUrl: state.url } });
-  return false;
+  // ON LAISSE PASSER LA NAVIGATION POUR QUE L'APPEL API SE FASSE.
+  // L'ERREUR 401 SERA VISIBLE DANS L'ONGLET RÉSEAU.
+  // L'INTERCEPTEUR GÉRERA LA REDIRECTION APRÈS L'ERREUR.
+  return true;
 };

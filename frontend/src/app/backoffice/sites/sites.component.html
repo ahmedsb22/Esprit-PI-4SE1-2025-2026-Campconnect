@@ -73,13 +73,13 @@
           <i class="fa fa-bars"></i>
         </button>
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item dropdown no-arrow">
+          <li class="nav-item dropdown no-arrow" *ngIf="authService.currentUser$ | async as user">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-              <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.firstName }} {{ user.lastName }}</span>
               <img class="img-profile rounded-circle" src="assets/backoffice-vendor/img/undraw_profile.svg" alt="Profile">
             </a>
             <div class="dropdown-menu dropdown-menu-right shadow">
-              <a class="dropdown-item" routerLink="/frontoffice/login">
+              <a class="dropdown-item" (click)="authService.logout()" style="cursor: pointer;">
                 <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
               </a>
             </div>
@@ -161,9 +161,9 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let site of sites">
-                    <td><img [src]="site.image" class="site-image" alt="Site"></td>
+                    <td><img [src]="site.imageUrl || 'assets/img/placeholder.svg'" class="site-image" alt="Site"></td>
                     <td>{{ site.name }}</td>
-                    <td>{{ site.owner }}</td>
+                    <td>{{ site.ownerName }}</td>
                     <td>{{ site.location }}</td>
                     <td>{{ site.date }}</td>
                     <td>
@@ -172,12 +172,14 @@
                       <span *ngIf="site.status === 'rejected'" class="badge badge-rejected">Rejected</span>
                     </td>
                     <td>
-                      <button *ngIf="site.status === 'pending'" class="btn btn-success btn-sm action-btn mr-1" (click)="approveSite(site.id)" title="Approve">
-                        <i class="fas fa-check"></i>
-                      </button>
-                      <button *ngIf="site.status === 'pending'" class="btn btn-danger btn-sm action-btn mr-1" (click)="rejectSite(site.id)" title="Reject">
-                        <i class="fas fa-times"></i>
-                      </button>
+                      <ng-container *ngIf="authService.hasRole('ADMIN')">
+                        <button *ngIf="site.status === 'pending'" class="btn btn-success btn-sm action-btn mr-1" (click)="approveSite(site.id)" title="Approve">
+                          <i class="fas fa-check"></i>
+                        </button>
+                        <button *ngIf="site.status === 'pending'" class="btn btn-danger btn-sm action-btn mr-1" (click)="rejectSite(site.id)" title="Reject">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </ng-container>
                       <button class="btn btn-primary btn-sm action-btn mr-1" (click)="editSite(site)" title="Edit">
                         <i class="fas fa-edit"></i>
                       </button>
@@ -209,42 +211,40 @@
 </div>
 
 <!-- Edit Site Modal -->
-<div class="modal fade" id="editSiteModal" tabindex="-1" role="dialog">
+<div class="modal fade" id="editSiteModal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content" *ngIf="editingSite">
       <div class="modal-header">
         <h5 class="modal-title">Edit Site: {{ editingSite.name }}</h5>
-        <button class="close" type="button" data-bs-dismiss="modal">
-          <span>&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="updateSite(); $event.preventDefault()">
-          <div class="row">
+          <div class="row mb-3">
             <div class="col-md-6">
               <div class="form-group">
-                <label>Site Name</label>
+                <label class="form-label">Site Name</label>
                 <input type="text" class="form-control" [(ngModel)]="editingSite.name" name="editName" required>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label>Location</label>
+                <label class="form-label">Location</label>
                 <input type="text" class="form-control" [(ngModel)]="editingSite.location" name="editLocation" required>
               </div>
             </div>
           </div>
-          <div class="row">
+          <div class="row mb-3">
             <div class="col-md-6">
               <div class="form-group">
-                <label>Price Per Night (TND)</label>
+                <label class="form-label">Price Per Night (TND)</label>
                 <input type="number" class="form-control" [(ngModel)]="editingSite.pricePerNight" name="editPrice" required>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label>Category</label>
-                <select class="form-control" [(ngModel)]="editingSite.category" name="editCategory">
+                <label class="form-label">Category</label>
+                <select class="form-select" [(ngModel)]="editingSite.category" name="editCategory">
                   <option value="MOUNTAIN">Mountain</option>
                   <option value="BEACH">Beach</option>
                   <option value="DESERT">Desert</option>
@@ -255,8 +255,8 @@
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>Description</label>
+          <div class="form-group mb-3">
+            <label class="form-label">Description</label>
             <textarea class="form-control" [(ngModel)]="editingSite.description" name="editDescription" rows="3"></textarea>
           </div>
           <div class="modal-footer px-0 pb-0">

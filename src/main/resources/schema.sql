@@ -1,4 +1,5 @@
-SET FOREIGN_KEY_CHECKS = 0;
+-- Pour MySQL (désactivé pour H2 via application.properties de test)
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
 -- Discard stale tablespaces first (fixes .ibd orphan files), then drop
 DROP TABLE IF EXISTS invoices;
@@ -11,7 +12,7 @@ DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS users;
 
-SET FOREIGN_KEY_CHECKS = 1;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 
 -- =============================================
 -- USERS

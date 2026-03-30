@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
 @Table(name = "camping_sites")
 @Getter
@@ -52,33 +53,43 @@ public class CampingSite {
 
     // Amenities
     @Column(nullable = false)
+    @Builder.Default
     private Boolean hasWifi = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean hasParking = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean hasRestrooms = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean hasShowers = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean hasElectricity = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean hasPetFriendly = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isVerified = false;
 
     @Column(precision = 3, scale = 2)
+    @Builder.Default
     private BigDecimal rating = BigDecimal.ZERO;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer reviewCount = 0;
 
     // Dans CampingSite.java (l'entité)

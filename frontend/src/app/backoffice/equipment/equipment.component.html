@@ -73,13 +73,13 @@
           <i class="fa fa-bars"></i>
         </button>
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item dropdown no-arrow">
+          <li class="nav-item dropdown no-arrow" *ngIf="authService.currentUser$ | async as user">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-              <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.firstName }} {{ user.lastName }}</span>
               <img class="img-profile rounded-circle" src="assets/backoffice-vendor/img/undraw_profile.svg" alt="Profile">
             </a>
             <div class="dropdown-menu dropdown-menu-right shadow">
-              <a class="dropdown-item" routerLink="/frontoffice/login">
+              <a class="dropdown-item" (click)="authService.logout()" style="cursor: pointer;">
                 <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
               </a>
             </div>
@@ -144,6 +144,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+      <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+          <span>Copyright &copy; CampConnect 2025</span>
+        </div>
+      </div>
+    </footer>
   </div>
 </div>
 
@@ -153,19 +162,19 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Add New Equipment</h5>
-        <button type="button" class="close" data-bs-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="createItem(); $event.preventDefault()">
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Name</label>
             <input type="text" class="form-control" [(ngModel)]="newItem.name" name="name" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Description</label>
             <textarea class="form-control" [(ngModel)]="newItem.description" name="description" rows="3" required></textarea>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Category</label>
             <select class="form-control" [(ngModel)]="newItem.category" name="category">
               <option value="SHELTER">Shelter</option>
@@ -175,15 +184,15 @@
               <option value="TOOLS">Tools</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Price Per Day</label>
             <input type="number" class="form-control" [(ngModel)]="newItem.pricePerDay" name="price" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Stock Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="newItem.stockQuantity" name="stock" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Image URL</label>
             <input type="text" class="form-control" [(ngModel)]="newItem.imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg">
           </div>
@@ -203,19 +212,19 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Edit Equipment: {{ editingItem.name }}</h5>
-        <button type="button" class="close" data-bs-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="updateItem(); $event.preventDefault()">
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Name</label>
             <input type="text" class="form-control" [(ngModel)]="editingItem.name" name="name" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Description</label>
             <textarea class="form-control" [(ngModel)]="editingItem.description" name="description" rows="3" required></textarea>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Category</label>
             <select class="form-control" [(ngModel)]="editingItem.category" name="category">
               <option value="SHELTER">Shelter</option>
@@ -225,19 +234,19 @@
               <option value="TOOLS">Tools</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Price Per Day</label>
             <input type="number" class="form-control" [(ngModel)]="editingItem.pricePerDay" name="price" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Stock Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="editingItem.stockQuantity" name="stock" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Available Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="editingItem.availableQuantity" name="available">
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label>Image URL</label>
             <input type="text" class="form-control" [(ngModel)]="editingItem.imageUrl" name="imageUrl">
           </div>
@@ -250,3 +259,7 @@
     </div>
   </div>
 </div>
+
+<a class="scroll-to-top rounded" (click)="scrollToTop()" style="cursor: pointer;">
+  <i class="fas fa-angle-up"></i>
+</a>

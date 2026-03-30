@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
 @Table(name = "equipment")
 @Getter
@@ -51,12 +52,15 @@ public class Equipment {
     private String specifications; // e.g., "6 persons", "0-15°C", "50L capacity"
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @Column(precision = 3, scale = 2)
+    @Builder.Default
     private BigDecimal rating = BigDecimal.ZERO;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer reviewCount = 0;
 
     // Provider relationship

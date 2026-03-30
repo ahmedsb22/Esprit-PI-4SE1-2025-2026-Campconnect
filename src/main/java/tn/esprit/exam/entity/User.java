@@ -1,5 +1,6 @@
 package tn.esprit.exam.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+@Schema(hidden = true)
 @Entity
 @Table(name = "users")
 @Getter
