@@ -4,13 +4,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class ApiConfigService {
-  private readonly baseUrl = 'http://localhost:8089/api';
-  private readonly apiDocsUrl = 'http://localhost:8089/api-docs';
-  private readonly swaggerUrl = 'http://localhost:8089/swagger-ui.html';
+  private readonly baseUrl = '/api';
+  private readonly apiDocsUrl = '/api-docs';
+  private readonly swaggerUrl = '/swagger-ui.html';
 
   /**
    * Get the base API URL
-   * @returns Base API URL (e.g., http://localhost:8089/api)
+   * @returns Base API URL (e.g., /api)
    */
   getBaseUrl(): string {
     return this.baseUrl;

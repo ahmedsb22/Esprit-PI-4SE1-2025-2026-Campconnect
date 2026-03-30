@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,7 +114,7 @@ public class CampingSiteController {
     @ApiResponse(responseCode = "201", description = "Site créé avec succès", content = @Content(schema = @Schema(implementation = CampingSiteDTO.class)))
     @ApiResponse(responseCode = "400", description = "Données invalides")
     @Transactional
-    public ResponseEntity<CampingSiteDTO> create(@RequestBody CampingSiteDTO siteDTO) {
+    public ResponseEntity<CampingSiteDTO> create(@Valid @RequestBody CampingSiteDTO siteDTO) {
         CampingSite site = new CampingSite();
         site.setName(siteDTO.getName());
         site.setDescription(siteDTO.getDescription());
@@ -148,7 +149,7 @@ public class CampingSiteController {
             @PathVariable
             @Parameter(description = "ID du site à modifier", example = "1")
             Long id,
-            @RequestBody CampingSiteDTO siteDTO) {
+            @Valid @RequestBody CampingSiteDTO siteDTO) {
         CampingSite existing = campingSiteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("CampingSite not found: " + id));
         

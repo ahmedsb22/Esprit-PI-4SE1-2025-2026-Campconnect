@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +67,7 @@ public class EquipmentController {
     @ApiResponse(responseCode = "200", description = "Équipements correspondant aux critères")
     @Transactional(readOnly = true)
     public List<EquipmentDTO> search(
+
             @RequestParam(required = false)
             @Parameter(description = "Nom de l'équipement (recherche partielle)")
             String name,
@@ -136,7 +138,7 @@ public class EquipmentController {
     @ApiResponse(responseCode = "400", description = "Données invalides")
     @Transactional
     public EquipmentDTO create(
-            @RequestBody
+            @Valid @RequestBody
             EquipmentDTO equipmentDTO) {
         Equipment equipment = new Equipment();
         equipment.setName(equipmentDTO.getName());
@@ -167,8 +169,7 @@ public class EquipmentController {
             @PathVariable
             @Parameter(description = "ID de l'équipement à mettre à jour", example = "1")
             Long id,
-            @RequestBody
-            EquipmentDTO equipmentDTO) {
+            @Valid @RequestBody EquipmentDTO equipmentDTO) {
         Equipment existing = equipmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Equipment not found: " + id));
         
