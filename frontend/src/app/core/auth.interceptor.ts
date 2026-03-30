@@ -48,17 +48,20 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
       if ((error.status === 401 || error.status === 403) && !isPublicAuthRequest) {
         console.warn(`INTERCEPTOR: Erreur ${error.status} sur ${req.url}`);
         
-        const currentUrl = router.url;
-        if (!currentUrl.includes('/login') && !currentUrl.includes('/register')) {
-          if (error.status === 401) {
-            authService.logout();
-            router.navigate(['/frontoffice/login'], { 
-              queryParams: { returnUrl: currentUrl, error: 'session_expired' } 
-            });
-          } else {
-            router.navigate(['/frontoffice/home'], { queryParams: { error: 'forbidden' } });
+        // Délai de 1s pour voir la ligne rouge dans l'onglet Réseau
+        setTimeout(() => {
+          const currentUrl = router.url;
+          if (!currentUrl.includes('/login') && !currentUrl.includes('/register')) {
+            if (error.status === 401) {
+              authService.logout();
+              router.navigate(['/frontoffice/login'], { 
+                queryParams: { returnUrl: currentUrl, error: 'session_expired' } 
+              });
+            } else {
+              router.navigate(['/frontoffice/home'], { queryParams: { error: 'forbidden' } });
+            }
           }
-        }
+        }, 1000);
       }
       return throwError(() => error);
     })
