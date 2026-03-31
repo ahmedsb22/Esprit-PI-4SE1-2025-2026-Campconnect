@@ -11,25 +11,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import tn.esprit.exam.entity.Equipment;
-import tn.esprit.exam.entity.ReservationEquipment;
-import tn.esprit.exam.repository.EquipmentRepository;
-import tn.esprit.exam.repository.ReservationEquipmentRepository;
-import tn.esprit.exam.repository.ReservationRepository;
+import tn.esprit.exam.dto.EquipmentOrderDTO;
 import tn.esprit.exam.security.CustomUserDetailsService;
 import tn.esprit.exam.security.JwtService;
+import tn.esprit.exam.service.IEquipmentOrderService;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,13 +39,7 @@ class EquipmentOrderControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private ReservationEquipmentRepository reservationEquipmentRepository;
-
-    @MockBean
-    private EquipmentRepository equipmentRepository;
-
-    @MockBean
-    private ReservationRepository reservationRepository;
+    private IEquipmentOrderService equipmentOrderService;
 
     @MockBean
     private JwtService jwtService;
@@ -62,49 +51,122 @@ class EquipmentOrderControllerTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /api/equipment-orders should return list of orders")
     void getAll_ok() throws Exception {
-        ReservationEquipment re = new ReservationEquipment();
-        re.setId(1L);
-        re.setQuantity(2);
-        re.setSubtotal(new BigDecimal("30.0"));
+        EquipmentOrderDTO dto = new EquipmentOrderDTO();
+        dto.setId(1L);
+        dto.setEquipmentId(1L);
+        dto.setQuantity(2);
+        dto.setPricePerDay(new BigDecimal("15.0"));
+        dto.setSubtotal(new BigDecimal("30.0"));
 
-        given(reservationEquipmentRepository.findAll()).willReturn(Collections.singletonList(re));
+        given(equipmentOrderService.getAllOrders()).willReturn(List.of(dto));
 
         mockMvc.perform(get("/api/equipment-orders"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].quantity").value(2))
-                .andExpect(jsonPath("$[0].subtotal").value(30.0));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].quantity").value(2));
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("POST /api/equipment-orders should create new order")
+    @DisplayName("GET /api/equipment-orders/{id} should return order by id")
+    void getById_ok() throws Exception {
+        EquipmentOrderDTO dto = new EquipmentOrderDTO();
+        dto.setId(1L);
+        dto.setEquipmentId(2L);
+        dto.setQuantity(1);
+        dto.setPricePerDay(new BigDecimal("10.0"));
+        dto.setSubtotal(new BigDecimal("10.0"));
+
+        given(equipmentOrderService.getOrderById(1L)).willReturn(dto);
+
+        mockMvc.perform(get("/api/equipment-orders/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.quantity").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /api/equipment-orders/reservation/{id} should return orders by reservation")
+    void getByReservation_ok() throws Exception {
+        EquipmentOrderDTO dto = new EquipmentOrderDTO();
+        dto.setId(1L);
+        dto.setReservationId(5L);
+        dto.setQuantity(3);
+        dto.setSubtotal(new BigDecimal("45.0"));
+
+        given(equipmentOrderService.getOrdersByReservation(5L)).willReturn(List.of(dto));
+
+        mockMvc.perform(get("/api/equipment-orders/reservation/5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].reservationId").value(5L))
+                .andExpect(jsonPath("$[0].quantity").value(3));
+    }
+
+    @Test
+    @WithMockUser(roles = "CAMPER")
+    @DisplayName("POST /api/equipment-orders should create order with auto price calculation")
     void create_ok() throws Exception {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("equipmentId", 1);
-        payload.put("quantity", 3);
+        EquipmentOrderDTO input = new EquipmentOrderDTO();
+        input.setEquipmentId(1L);
+        input.setQuantity(2);
+        input.setReservationId(1L);
 
-        Equipment equipment = new Equipment();
-        equipment.setId(1L);
-        equipment.setPricePerDay(new BigDecimal("10.0"));
+        EquipmentOrderDTO created = new EquipmentOrderDTO();
+        created.setId(1L);
+        created.setEquipmentId(1L);
+        created.setQuantity(2);
+        created.setPricePerDay(new BigDecimal("15.0"));
+        created.setSubtotal(new BigDecimal("30.0"));
+        created.setReservationId(1L);
 
-        ReservationEquipment saved = new ReservationEquipment();
-        saved.setId(10L);
-        saved.setQuantity(3);
-        saved.setSubtotal(new BigDecimal("30.0"));
-        saved.setEquipment(equipment);
-
-        given(equipmentRepository.findById(1L)).willReturn(Optional.of(equipment));
-        given(reservationEquipmentRepository.save(any(ReservationEquipment.class))).willReturn(saved);
+        given(equipmentOrderService.createOrder(any(EquipmentOrderDTO.class), eq(1L)))
+                .willReturn(created);
 
         mockMvc.perform(post("/api/equipment-orders")
+                        .param("userId", "1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(payload)))
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.subtotal").value(30.0))
+                .andExpect(jsonPath("$.quantity").value(2));
+    }
+
+    @Test
+    @WithMockUser(roles = "CAMPER")
+    @DisplayName("PUT /api/equipment-orders/{id} should update order quantity")
+    void update_ok() throws Exception {
+        EquipmentOrderDTO input = new EquipmentOrderDTO();
+        input.setQuantity(3);
+
+        EquipmentOrderDTO updated = new EquipmentOrderDTO();
+        updated.setId(1L);
+        updated.setQuantity(3);
+        updated.setPricePerDay(new BigDecimal("15.0"));
+        updated.setSubtotal(new BigDecimal("45.0"));
+
+        given(equipmentOrderService.updateOrder(eq(1L), any(EquipmentOrderDTO.class)))
+                .willReturn(updated);
+
+        mockMvc.perform(put("/api/equipment-orders/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.quantity").value(3))
-                .andExpect(jsonPath("$.subtotal").value(30.0));
+                .andExpect(jsonPath("$.subtotal").value(45.0));
+    }
+
+    @Test
+    @WithMockUser(roles = "CAMPER")
+    @DisplayName("DELETE /api/equipment-orders/{id} should cancel order and restore quantity")
+    void cancel_ok() throws Exception {
+        doNothing().when(equipmentOrderService).cancelOrder(1L);
+
+        mockMvc.perform(delete("/api/equipment-orders/1")
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
     }
 }

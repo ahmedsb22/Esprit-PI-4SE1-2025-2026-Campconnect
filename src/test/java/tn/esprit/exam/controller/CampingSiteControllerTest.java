@@ -11,17 +11,18 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import tn.esprit.exam.entity.CampingSite;
-import tn.esprit.exam.repository.CampingSiteRepository;
+import tn.esprit.exam.dto.CampingSiteDTO;
 import tn.esprit.exam.security.CustomUserDetailsService;
 import tn.esprit.exam.security.JwtService;
+import tn.esprit.exam.service.ICampingSiteService;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,7 +39,7 @@ class CampingSiteControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private CampingSiteRepository campingSiteRepository;
+    private ICampingSiteService campingSiteService;
 
     @MockBean
     private JwtService jwtService;
@@ -52,11 +53,14 @@ class CampingSiteControllerTest {
     @Test
     @DisplayName("GET /api/sites should return list of sites")
     void getAll_ok() throws Exception {
-        CampingSite site = new CampingSite();
-        site.setId(1L);
-        site.setName("Camping Paradise");
+        CampingSiteDTO dto = CampingSiteDTO.builder()
+                .id(1L)
+                .name("Camping Paradise")
+                .location("Tunis")
+                .pricePerNight(new BigDecimal("50.0"))
+                .build();
 
-        given(campingSiteRepository.findAll()).willReturn(Collections.singletonList(site));
+        given(campingSiteService.getAllCampingSites()).willReturn(List.of(dto));
 
         mockMvc.perform(get("/api/sites"))
                 .andExpect(status().isOk())
@@ -66,11 +70,12 @@ class CampingSiteControllerTest {
     @Test
     @DisplayName("GET /api/sites/{id} should return site by id")
     void getById_ok() throws Exception {
-        CampingSite site = new CampingSite();
-        site.setId(1L);
-        site.setName("Mountain View");
+        CampingSiteDTO dto = CampingSiteDTO.builder()
+                .id(1L)
+                .name("Mountain View")
+                .build();
 
-        given(campingSiteRepository.findById(1L)).willReturn(Optional.of(site));
+        given(campingSiteService.getCampingSiteById(1L)).willReturn(dto);
 
         mockMvc.perform(get("/api/sites/1"))
                 .andExpect(status().isOk())
@@ -78,38 +83,84 @@ class CampingSiteControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("POST /api/sites should create a new site")
+    @WithMockUser(roles = "SITE_OWNER")
+    @DisplayName("POST /api/sites should create a new site linked to owner")
     void create_ok() throws Exception {
-        CampingSite site = new CampingSite();
-        site.setName("Forest Camp");
-        site.setLocation("Zaghouan");
-        site.setPricePerNight(new BigDecimal("50.0"));
+        CampingSiteDTO input = CampingSiteDTO.builder()
+                .name("Forest Camp")
+                .location("Zaghouan")
+                .pricePerNight(new BigDecimal("50.0"))
+                .build();
 
-        given(campingSiteRepository.save(any(CampingSite.class))).willReturn(site);
+        CampingSiteDTO created = CampingSiteDTO.builder()
+                .id(1L)
+                .name("Forest Camp")
+                .location("Zaghouan")
+                .ownerId(1L)
+                .ownerName("Ahmed Chaib")
+                .pricePerNight(new BigDecimal("50.0"))
+                .build();
+
+        given(campingSiteService.createCampingSite(any(CampingSiteDTO.class), eq(1L)))
+                .willReturn(created);
 
         mockMvc.perform(post("/api/sites")
+                        .param("ownerId", "1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(site)))
+                        .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Forest Camp"));
+                .andExpect(jsonPath("$.name").value("Forest Camp"))
+                .andExpect(jsonPath("$.ownerId").value(1L));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName("PUT /api/sites/{id}/approve should verify the site")
+    @DisplayName("PUT /api/sites/{id}/approve should verify the site — Admin only")
     void approve_ok() throws Exception {
-        CampingSite site = new CampingSite();
-        site.setId(1L);
-        site.setIsVerified(false);
+        CampingSiteDTO approved = CampingSiteDTO.builder()
+                .id(1L)
+                .name("Desert Camp")
+                .isVerified(true)
+                .isActive(true)
+                .build();
 
-        given(campingSiteRepository.findById(1L)).willReturn(Optional.of(site));
-        given(campingSiteRepository.save(any(CampingSite.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(campingSiteService.verifyCampingSite(1L)).willReturn(approved);
 
         mockMvc.perform(put("/api/sites/1/approve")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isVerified").value(true));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("PUT /api/sites/{id}/reject should reject the site — Admin only")
+    void reject_ok() throws Exception {
+        CampingSiteDTO rejected = CampingSiteDTO.builder()
+                .id(1L)
+                .name("Desert Camp")
+                .isVerified(false)
+                .isActive(false)
+                .build();
+
+        given(campingSiteService.rejectCampingSite(1L)).willReturn(rejected);
+
+        mockMvc.perform(put("/api/sites/1/reject")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isVerified").value(false));
+    }
+
+    @Test
+    @WithMockUser(roles = "SITE_OWNER")
+    @DisplayName("DELETE /api/sites/{id} should delete site and its reservations")
+    void delete_ok() throws Exception {
+        doNothing().when(campingSiteService).deleteCampingSite(eq(1L), eq(1L));
+
+        mockMvc.perform(delete("/api/sites/1")
+                        .param("ownerId", "1")
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
     }
 }

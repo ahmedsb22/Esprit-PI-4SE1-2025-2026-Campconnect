@@ -81,21 +81,38 @@ class EquipmentControllerTest {
                 .andExpect(jsonPath("$.name").value("Sleeping Bag"));
     }
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("POST /api/equipment should create new equipment")
-    void create_ok() throws Exception {
-        Equipment equipment = new Equipment();
-        equipment.setName("Gas Stove");
-        equipment.setPricePerDay(new BigDecimal("10.0"));
+@Test
+@WithMockUser(roles = "ADMIN")
+@DisplayName("POST /api/equipment should create new equipment")
+void create_ok() throws Exception {
+    EquipmentDTO dto = new EquipmentDTO();
+    dto.setName("Gas Stove");
+    dto.setDescription("Réchaud à gaz portable");
+    dto.setCategory("Cooking");
+    dto.setPricePerDay(new BigDecimal("10.0"));
+    dto.setStockQuantity(5);
+    dto.setAvailableQuantity(5);
+    dto.setIsActive(true);
 
-        given(equipmentRepository.save(any(Equipment.class))).willReturn(equipment);
+    Equipment equipment = new Equipment();
+    equipment.setId(1L);
+    equipment.setName("Gas Stove");
+    equipment.setDescription("Réchaud à gaz portable");
+    equipment.setCategory("Cooking");
+    equipment.setPricePerDay(new BigDecimal("10.0"));
+    equipment.setStockQuantity(5);
+    equipment.setAvailableQuantity(5);
+    equipment.setIsActive(true);
+    equipment.setRating(java.math.BigDecimal.ZERO);
+    equipment.setReviewCount(0);
 
-        mockMvc.perform(post("/api/equipment")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(equipment)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Gas Stove"));
-    }
+    given(equipmentRepository.save(any(Equipment.class))).willReturn(equipment);
+
+    mockMvc.perform(post("/api/equipment")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Gas Stove"));
+}
 }

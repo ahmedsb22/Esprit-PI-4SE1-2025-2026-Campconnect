@@ -18,5 +18,6 @@ public interface ICampingSiteService {
     List<CampingSiteDTO> getTopRatedCampingSites();
     void deleteCampingSite(Long id, Long ownerId);
     CampingSiteDTO verifyCampingSite(Long id);
+    CampingSiteDTO rejectCampingSite(Long id);
     CampingSiteDTO toggleActiveStatus(Long id, Long ownerId);
 }

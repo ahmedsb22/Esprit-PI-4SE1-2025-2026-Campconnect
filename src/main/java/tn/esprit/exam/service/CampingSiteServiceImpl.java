@@ -91,6 +91,16 @@ public class CampingSiteServiceImpl implements ICampingSiteService {
 
         return mapToDTO(updated);
     }
+    @Override
+    public CampingSiteDTO rejectCampingSite(Long id) {
+        CampingSite site = campingSiteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Camping site not found with id: " + id));
+        site.setIsVerified(false);
+        site.setIsActive(false);
+        CampingSite rejected = campingSiteRepository.save(site);
+        log.info("Camping site rejected: {}", id);
+        return mapToDTO(rejected);
+    }
 
     @Override
     @Transactional(readOnly = true)
