@@ -20,7 +20,7 @@ import java.util.Map;
     description = "Statistiques et tableau de bord - rapports de performance et revenus"
 )
 @RequiredArgsConstructor
-public class AnalyticsController {
+public class AnalyticsController {//analyse
 
     private final CampingSiteRepository campingSiteRepository;
     private final UserRepository userRepository;
