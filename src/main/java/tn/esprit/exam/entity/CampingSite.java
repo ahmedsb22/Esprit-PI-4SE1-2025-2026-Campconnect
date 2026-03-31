@@ -21,7 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CampingSite {
+public class CampingSite {//integration du reviews
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
