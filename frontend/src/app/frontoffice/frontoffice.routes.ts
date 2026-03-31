@@ -44,5 +44,10 @@ export const FRONTOFFICE_ROUTES: Routes = [
     path: 'profile',
     canActivate: [authGuard],
     loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent)
+  },
+  {
+    path: 'my-bookings',
+    canActivate: [authGuard],
+    loadComponent: () => import('./my-bookings/my-bookings.component').then(m => m.MyBookingsComponent)
   }
 ];

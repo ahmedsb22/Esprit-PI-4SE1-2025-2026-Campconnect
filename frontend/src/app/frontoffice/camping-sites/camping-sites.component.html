@@ -150,7 +150,7 @@
                     <i class="bi bi-star-fill"></i> {{ site.rating | number:'1.0-1' }} ({{ site.reviews }} reviews)
                   </div>
                 </div>
-                <button class="btn btn-book" (click)="bookSite(site.id)">Book Now</button>
+                <button class="btn btn-book" (click)="openBookingModal(site)">Book Now</button>
               </div>
             </div>
           </div>
@@ -245,3 +245,87 @@
 <a (click)="scrollToTop()" style="cursor: pointer;" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
   <i class="bi bi-arrow-up-short"></i>
 </a>
+
+<!-- Booking Modal -->
+<div class="booking-modal-backdrop" *ngIf="showBookingModal" (click)="closeBookingModal()"></div>
+<div class="booking-modal" *ngIf="showBookingModal" role="dialog" aria-modal="true">
+  <div class="booking-modal-header">
+    <h5 class="booking-modal-title">
+      <i class="bi bi-calendar-check me-2"></i> Book {{ selectedSite?.name }}
+    </h5>
+    <button class="booking-modal-close" (click)="closeBookingModal()" aria-label="Close">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="booking-modal-body" *ngIf="!bookingSuccess">
+    <div class="booking-site-info mb-4">
+      <div class="d-flex align-items-center gap-2 text-muted mb-1">
+        <i class="bi bi-geo-alt-fill text-success"></i>
+        <small>{{ selectedSite?.location }}</small>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="booking-price-badge">{{ selectedSite?.price | number:'1.0-2' }} TND<span class="text-muted">/night</span></span>
+        <span class="text-muted small"><i class="bi bi-star-fill text-warning"></i> {{ selectedSite?.rating | number:'1.0-1' }}</span>
+      </div>
+    </div>
+
+    <div class="alert alert-danger py-2" *ngIf="bookingError">
+      <i class="bi bi-exclamation-circle me-1"></i> {{ bookingError }}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="form-label fw-semibold">Check-in <span class="text-danger">*</span></label>
+        <input type="date" class="form-control" [(ngModel)]="bookingForm.checkInDate"
+          [min]="today" (change)="onDatesChanged()" required>
+      </div>
+      <div class="col-6">
+        <label class="form-label fw-semibold">Check-out <span class="text-danger">*</span></label>
+        <input type="date" class="form-control" [(ngModel)]="bookingForm.checkOutDate"
+          [min]="bookingForm.checkInDate || today" (change)="onDatesChanged()" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-semibold">Number of Guests <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" [(ngModel)]="bookingForm.numberOfGuests"
+          min="1" max="20" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-semibold">Special Requests</label>
+        <textarea class="form-control" [(ngModel)]="bookingForm.specialRequests"
+          rows="3" placeholder="Dietary needs, accessibility, arrival time..."></textarea>
+      </div>
+    </div>
+
+    <div class="booking-price-summary mt-4" *ngIf="calculatedPrice !== null">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted">Estimated Total</span>
+        <span class="booking-total-price">{{ calculatedPrice | number:'1.0-2' }} TND</span>
+      </div>
+      <small class="text-muted">Final price confirmed at checkout</small>
+    </div>
+  </div>
+
+  <div class="booking-modal-body booking-success-body" *ngIf="bookingSuccess">
+    <div class="text-center py-3">
+      <div class="booking-success-icon mb-3">
+        <i class="bi bi-check-circle-fill text-success"></i>
+      </div>
+      <h5 class="fw-bold mb-2">Booking Submitted!</h5>
+      <p class="text-muted mb-3">Your reservation for <strong>{{ selectedSite?.name }}</strong> is now <span class="badge bg-warning text-dark">Pending</span> confirmation.</p>
+      <a routerLink="/frontoffice/my-bookings" class="btn btn-book me-2" (click)="closeBookingModal()">
+        <i class="bi bi-calendar2-week me-1"></i> View My Bookings
+      </a>
+      <button class="btn btn-outline-secondary" (click)="closeBookingModal()">Close</button>
+    </div>
+  </div>
+
+  <div class="booking-modal-footer" *ngIf="!bookingSuccess">
+    <button class="btn btn-outline-secondary" (click)="closeBookingModal()">Cancel</button>
+    <button class="btn btn-book" (click)="submitBooking()" [disabled]="bookingLoading">
+      <span *ngIf="bookingLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <i *ngIf="!bookingLoading" class="bi bi-calendar-check me-1"></i>
+      {{ bookingLoading ? 'Booking...' : 'Confirm Booking' }}
+    </button>
+  </div>
+</div>

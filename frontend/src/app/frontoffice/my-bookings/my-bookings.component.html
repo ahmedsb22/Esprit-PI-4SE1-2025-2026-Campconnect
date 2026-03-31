@@ -1,0 +1,176 @@
+<header id="header" class="header d-flex align-items-center sticky-top">
+  <div class="container position-relative d-flex align-items-center justify-content-between">
+    <a routerLink="/frontoffice/home" class="logo d-flex align-items-center me-auto me-xl-0">
+      <i class="bi bi-tree" style="font-size: 2rem; color: #2E7D32; margin-right: 0.5rem;"></i>
+      <h1 class="sitename">CampConnect</h1><span>.</span>
+    </a>
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a routerLink="/frontoffice/home">Home</a></li>
+        <li><a routerLink="/frontoffice/camping-sites">Camping Sites</a></li>
+        <li><a routerLink="/frontoffice/equipment">Equipment</a></li>
+        <li><a routerLink="/frontoffice/my-bookings" class="active">My Bookings</a></li>
+        <li><a routerLink="/frontoffice/profile">Profile</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+    <a class="btn-getstarted" routerLink="/frontoffice/camping-sites">Browse Sites</a>
+  </div>
+</header>
+
+<main class="main">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h1><i class="bi bi-calendar2-week me-2"></i>My Bookings</h1>
+          <p>Manage your camping reservations</p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+          <a routerLink="/frontoffice/camping-sites" class="btn btn-light btn-lg">
+            <i class="bi bi-plus-circle me-1"></i> New Booking
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bookings-section py-5">
+    <div class="container">
+
+      <!-- Filter Bar -->
+      <div class="filter-bar mb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-4">
+            <label class="form-label mb-1 text-muted small fw-semibold">Filter by Status</label>
+            <select class="form-select" [(ngModel)]="filterStatus" (change)="applyFilter()">
+              <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <span class="text-muted small">
+              Showing <strong>{{ filteredBookings.length }}</strong> of <strong>{{ bookings.length }}</strong> bookings
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-3">Loading your bookings...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="!loading && error" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && filteredBookings.length === 0" class="empty-state text-center py-5">
+        <i class="bi bi-calendar-x empty-icon"></i>
+        <h4 class="mt-3">No bookings found</h4>
+        <p class="text-muted mb-4">
+          {{ filterStatus ? 'No bookings with status "' + filterStatus + '".' : "You haven't made any bookings yet." }}
+        </p>
+        <a routerLink="/frontoffice/camping-sites" class="btn btn-book btn-lg">
+          <i class="bi bi-compass me-1"></i> Explore Camping Sites
+        </a>
+      </div>
+
+      <!-- Bookings List -->
+      <div *ngIf="!loading && !error && filteredBookings.length > 0" class="bookings-list">
+        <div class="booking-card" *ngFor="let booking of filteredBookings">
+          <div class="booking-card-header">
+            <div class="d-flex align-items-center gap-2">
+              <span class="reservation-number">{{ booking.reservationNumber }}</span>
+              <span class="status-badge" [ngClass]="statusClass(booking.status)">
+                <i class="bi" [ngClass]="statusIcon(booking.status)"></i>
+                {{ booking.status | titlecase }}
+              </span>
+            </div>
+            <span class="booking-date text-muted small" *ngIf="booking.createdAt">
+              Booked on {{ booking.createdAt | date:'mediumDate' }}
+            </span>
+          </div>
+
+          <div class="booking-card-body">
+            <div class="row g-3">
+              <!-- Site Info -->
+              <div class="col-md-5">
+                <div class="site-info">
+                  <h5 class="site-name">
+                    <i class="bi bi-tree-fill text-success me-1"></i>
+                    {{ booking.siteName }}
+                  </h5>
+                  <div class="text-muted small" *ngIf="booking.siteLocation">
+                    <i class="bi bi-geo-alt-fill me-1"></i>{{ booking.siteLocation }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dates -->
+              <div class="col-md-4">
+                <div class="dates-info">
+                  <div class="date-item">
+                    <span class="date-label">Check-in</span>
+                    <span class="date-value">{{ booking.checkInDate | date:'mediumDate' }}</span>
+                  </div>
+                  <div class="date-arrow"><i class="bi bi-arrow-right"></i></div>
+                  <div class="date-item">
+                    <span class="date-label">Check-out</span>
+                    <span class="date-value">{{ booking.checkOutDate | date:'mediumDate' }}</span>
+                  </div>
+                </div>
+                <div class="text-muted small mt-1">
+                  <i class="bi bi-moon-stars me-1"></i>
+                  {{ nights(booking.checkInDate, booking.checkOutDate) }} night(s) ·
+                  <i class="bi bi-people me-1"></i>{{ booking.numberOfGuests }} guest(s)
+                </div>
+              </div>
+
+              <!-- Price & Actions -->
+              <div class="col-md-3 text-md-end">
+                <div class="total-price" *ngIf="booking.totalPrice > 0">
+                  {{ booking.totalPrice | number:'1.0-2' }} TND
+                  <span class="text-muted small d-block">total</span>
+                </div>
+                <div class="mt-2" *ngIf="booking.status === 'PENDING' || booking.status === 'CONFIRMED'">
+                  <button class="btn btn-cancel btn-sm"
+                    (click)="cancelBooking(booking.id)"
+                    [disabled]="cancellingId === booking.id">
+                    <span *ngIf="cancellingId === booking.id" class="spinner-border spinner-border-sm me-1"></span>
+                    <i *ngIf="cancellingId !== booking.id" class="bi bi-x-circle me-1"></i>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Special Requests -->
+            <div class="special-requests mt-3" *ngIf="booking.specialRequests">
+              <small class="text-muted">
+                <i class="bi bi-chat-left-text me-1"></i>
+                <strong>Special requests:</strong> {{ booking.specialRequests }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer id="footer" class="footer dark-background">
+  <div class="container copyright text-center mt-4 py-4">
+    <p>© <span>Copyright</span> <strong class="sitename">CampConnect</strong> 2025. All Rights Reserved.</p>
+  </div>
+</footer>
+
+<a (click)="scrollToTop()" style="cursor: pointer;" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+  <i class="bi bi-arrow-up-short"></i>
+</a>

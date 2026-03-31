@@ -1,0 +1,222 @@
+.page-header {
+  padding: 6rem 0 3rem;
+  background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+  color: white;
+  margin-bottom: 0;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+  }
+}
+
+.filter-bar {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+// ── Booking Cards ──────────────────────────────────────────────
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.booking-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E8F5E9;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.13);
+  }
+}
+
+.booking-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  background: #F9FBE7;
+  border-bottom: 1px solid #E8F5E9;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.reservation-number {
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #37474F;
+  background: #ECEFF1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.booking-card-body {
+  padding: 1.25rem;
+}
+
+.site-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #212121;
+}
+
+// ── Dates ──────────────────────────────────────────────────────
+.dates-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-label {
+  font-size: 0.75rem;
+  color: #9E9E9E;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.date-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #212121;
+}
+
+.date-arrow {
+  color: #BDBDBD;
+  font-size: 1rem;
+}
+
+// ── Price ──────────────────────────────────────────────────────
+.total-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2E7D32;
+  line-height: 1.2;
+}
+
+// ── Status Badges ──────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  i { font-size: 0.8rem; }
+}
+
+.status-pending {
+  background: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #FFE082;
+}
+
+.status-confirmed {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
+.status-checkedin {
+  background: #E3F2FD;
+  color: #1565C0;
+  border: 1px solid #90CAF9;
+}
+
+.status-checkedout {
+  background: #FAFAFA;
+  color: #616161;
+  border: 1px solid #E0E0E0;
+}
+
+.status-cancelled {
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
+}
+
+.status-completed {
+  background: #EDE7F6;
+  color: #4527A0;
+  border: 1px solid #CE93D8;
+}
+
+// ── Cancel Button ──────────────────────────────────────────────
+.btn-cancel {
+  background: transparent;
+  border: 1px solid #EF5350;
+  color: #EF5350;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #EF5350;
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-book {
+  background: #2E7D32;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #1B5E20;
+    color: white;
+  }
+}
+
+// ── Special Requests ───────────────────────────────────────────
+.special-requests {
+  background: #FAFAFA;
+  border-radius: 8px;
+  padding: 0.6rem 0.875rem;
+  border-left: 3px solid #BDBDBD;
+}
+
+// ── Empty State ────────────────────────────────────────────────
+.empty-state {
+  .empty-icon {
+    font-size: 5rem;
+    color: #C8E6C9;
+    display: block;
+  }
+
+  h4 {
+    color: #424242;
+    font-weight: 600;
+  }
+}

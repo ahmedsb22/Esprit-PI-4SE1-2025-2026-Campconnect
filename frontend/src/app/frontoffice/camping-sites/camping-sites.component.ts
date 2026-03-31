@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { timeout } from 'rxjs/operators';
 import { SiteService, CampingSite } from '../../services/site.service';
 import { CampingSiteView } from '../../models/camping-site.model';
+import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -16,7 +18,7 @@ import { environment } from '../../../environments/environment';
 })
 export class CampingSitesComponent implements OnInit, AfterViewInit {
   sites: CampingSiteView[] = [];
-  loading = true;
+  loading = false;
   viewMode: 'grid' | 'list' = 'grid';
 
   filters = {
@@ -25,6 +27,21 @@ export class CampingSitesComponent implements OnInit, AfterViewInit {
     siteType: '',
     features: ''
   };
+
+  // Booking modal state
+  showBookingModal = false;
+  selectedSite: CampingSiteView | null = null;
+  bookingForm = {
+    checkInDate: '',
+    checkOutDate: '',
+    numberOfGuests: 1,
+    specialRequests: ''
+  };
+  calculatedPrice: number | null = null;
+  bookingLoading = false;
+  bookingError = '';
+  bookingSuccess = false;
+  today = new Date().toISOString().split('T')[0];
 
   sampleSites: CampingSiteView[] = [
     {
@@ -99,7 +116,8 @@ export class CampingSitesComponent implements OnInit, AfterViewInit {
 
   constructor(
     private siteService: SiteService,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -113,19 +131,20 @@ export class CampingSitesComponent implements OnInit, AfterViewInit {
   }
 
   loadSites(): void {
-    this.loading = true;
-    this.siteService.getActiveSites().subscribe({
+    // Show sample sites immediately — no spinner on load
+    this.sites = this.sampleSites;
+    this.loading = false;
+
+    // Try to replace with real data from API in background
+    this.siteService.getActiveSites().pipe(
+      timeout(5000)
+    ).subscribe({
       next: (sites: CampingSite[]) => {
-        this.sites = sites.length > 0
-          ? sites.map((site: CampingSite) => this.mapSite(site))
-          : this.sampleSites;
-        this.loading = false;
+        if (Array.isArray(sites) && sites.length > 0) {
+          this.sites = sites.map((site: CampingSite) => this.mapSite(site));
+        }
       },
-      error: (err: HttpErrorResponse) => {
-        console.error('Error loading sites:', err);
-        this.sites = this.sampleSites;
-        this.loading = false;
-      }
+      error: () => { /* keep showing sample sites */ }
     });
   }
 
@@ -162,27 +181,72 @@ export class CampingSitesComponent implements OnInit, AfterViewInit {
     this.viewMode = mode;
   }
 
-  /** Book a site — no auth required (anonymous booking) */
-  bookSite(siteId: number): void {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + 7);
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 9);
+  openBookingModal(site: CampingSiteView): void {
+    if (!this.authService.isAuthenticated()) {
+      window.location.href = '/frontoffice/login';
+      return;
+    }
+    this.selectedSite = site;
+    this.bookingForm = { checkInDate: '', checkOutDate: '', numberOfGuests: 1, specialRequests: '' };
+    this.calculatedPrice = null;
+    this.bookingError = '';
+    this.bookingSuccess = false;
+    this.showBookingModal = true;
+  }
 
-    // Payload matches Reservation JPA entity structure
-    const payload = {
-      campingSite: { id: siteId },
-      checkInDate: startDate.toISOString().split('T')[0],
-      checkOutDate: endDate.toISOString().split('T')[0],
-      numberOfGuests: 2,
-      status: 'PENDING'
+  closeBookingModal(): void {
+    this.showBookingModal = false;
+    this.selectedSite = null;
+  }
+
+  onDatesChanged(): void {
+    this.calculatedPrice = null;
+    if (this.selectedSite && this.bookingForm.checkInDate && this.bookingForm.checkOutDate) {
+      const checkIn = new Date(this.bookingForm.checkInDate);
+      const checkOut = new Date(this.bookingForm.checkOutDate);
+      if (checkOut > checkIn) {
+        const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+        this.calculatedPrice = nights * this.selectedSite.price;
+      }
+    }
+  }
+
+  submitBooking(): void {
+    if (!this.bookingForm.checkInDate || !this.bookingForm.checkOutDate) {
+      this.bookingError = 'Please select check-in and check-out dates.';
+      return;
+    }
+    if (new Date(this.bookingForm.checkOutDate) <= new Date(this.bookingForm.checkInDate)) {
+      this.bookingError = 'Check-out date must be after check-in date.';
+      return;
+    }
+    if (this.bookingForm.numberOfGuests < 1) {
+      this.bookingError = 'At least 1 guest is required.';
+      return;
+    }
+
+    this.bookingLoading = true;
+    this.bookingError = '';
+
+    const user = this.authService.getStoredUser();
+    const payload: any = {
+      checkInDate: this.bookingForm.checkInDate,
+      checkOutDate: this.bookingForm.checkOutDate,
+      numberOfGuests: this.bookingForm.numberOfGuests,
+      status: 'PENDING',
+      specialRequests: this.bookingForm.specialRequests || '',
+      campingSiteId: this.selectedSite?.id,
+      camperId: (user as any)?.id || null
     };
 
     this.http.post(this.bookingApiUrl, payload).subscribe({
-      next: () => alert('✅ Booking created successfully! View it in the backoffice under Bookings.'),
+      next: () => {
+        this.bookingLoading = false;
+        this.bookingSuccess = true;
+      },
       error: (err: HttpErrorResponse) => {
-        console.error('Booking failed', err);
-        alert(err.error?.message || 'Booking failed. Please try again.');
+        this.bookingLoading = false;
+        this.bookingError = err.error?.message || 'Booking failed. Please try again.';
       }
     });
   }
